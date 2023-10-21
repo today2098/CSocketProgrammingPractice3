@@ -1,0 +1,13 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+
+AccessModifierOffset: -4
+# AlignConsecutiveAssignments: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+# AllowShortLoopsOnASingleLine: true
+ColumnLimit: 0
+ForEachMacros: ["REP", "FOR"]
+IndentWidth: 4
+SpaceBeforeParens: Never
+...
