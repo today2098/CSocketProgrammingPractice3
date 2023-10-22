@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     fflush(stdout);
 
     // (5) open(): 空ファイルを作成．
-    int fd = open(output_filename, O_WRONLY | O_CREAT, 0755);
+    int fd = open(output_filename, O_WRONLY | O_CREAT | O_TRUNC, 0755);
     if(fd == -1) DieWithSystemMessage(__LINE__, "open()");
 
     // (6) read(): ファイルデータを受信．

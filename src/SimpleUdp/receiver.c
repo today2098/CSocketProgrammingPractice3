@@ -29,8 +29,9 @@ int main() {
     }
 
     // (3) recv(): メッセージを受信．
-    char buf[1024] = {};
+    char buf[1024];
     ssize_t n = read(sock, buf, sizeof(buf) - 1);
+    buf[n] = '\0';
     if(n == -1) {
         perror("read()");
         return 1;

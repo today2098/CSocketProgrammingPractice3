@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     int res;
 
     // (1) socket(): UDPソケットを作成．
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     server.sin_port = htons(12345);
     res = inet_pton(AF_INET, "127.0.0.1", &server.sin_addr.s_addr);
     if(res == 0 || res == -1) {
-        if(res == 0) fprintf(stderr, "wrong network address notation");
+        if(res == 0) fprintf(stderr, "wrong network address notation\n");
         else perror("inet_pton");
         return 1;
     }

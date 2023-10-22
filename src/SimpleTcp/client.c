@@ -24,7 +24,7 @@ int main() {
     // アドレスをテキスト形式からバイナリ形式に変換する．127.0.0.1はlocalhost.
     res = inet_pton(AF_INET, "127.0.0.1", &server.sin_addr.s_addr);
     if(res == 0 || res == -1) {
-        if(res == 0) fprintf(stderr, "wrong network address notation");
+        if(res == 0) fprintf(stderr, "wrong network address notation\n");
         else perror("inet_pton");
         return 1;
     }
@@ -40,8 +40,9 @@ int main() {
     fflush(stdout);
 
     // (4) read(): メッセージを受信．
-    char buf[1024] = {};
+    char buf[1024];
     ssize_t n = read(sock, buf, sizeof(buf) - 1);
+    buf[n] = '\0';
     if(n == -1) {
         perror("read()");
         return 1;
