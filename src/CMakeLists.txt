@@ -1,3 +1,4 @@
+add_subdirectory(NameResolution)
 add_subdirectory(SimpleTcp)
 add_subdirectory(SimpleUdp)
 add_subdirectory(TcpFileTransfer)
