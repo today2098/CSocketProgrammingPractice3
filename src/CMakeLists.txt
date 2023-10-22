@@ -1,3 +1,4 @@
 add_subdirectory(SimpleTcp)
 add_subdirectory(SimpleUdp)
+add_subdirectory(TcpFileTransfer)
 add_subdirectory(UdpFileTransfer)

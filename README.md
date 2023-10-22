@@ -8,6 +8,7 @@
 |---|---|
 |Simple TCP|TCP を用いて短いメッセージの送受信を行う．|
 |Simple UDP|UDP を用いて短いメッセージの送受信を行う．|
+|TCP File Transfer|TCP を用いてファイル転送を行う．|
 |UDP File Transfer|UDP を用いてファイル転送を行う．|
 
 
