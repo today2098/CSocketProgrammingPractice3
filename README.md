@@ -3,6 +3,16 @@
 ソケットプログラミングを勉強した際の成果物．
 
 
+## Projects
+
+|プロジェクト名|概要|
+|---|---|
+|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|
+|Simple UDP|UDP を用いて短いメッセージの送受信を行う．|
+|TCP File Transfer|TCP を用いてファイル転送を行う．|
+|UDP File Transfer|UDP を用いてファイル転送を行う．|
+
+
 ## Environment
 
 以下の環境で動作を確認しました．
@@ -10,7 +20,6 @@
 - Ubuntu 20.04.6 LTS @ WSL1 @ Windows 11
 - GCC 9.4.0
 - Cmake 3.16.3
-
 
 ### Prerequisites
 
@@ -23,9 +32,11 @@ $ sudo apt install build-essential
 ```
 
 
-## Build
+## Usage
 
-初めにシェルスクリプト `build.sh` を利用してビルドします．
+### Build
+
+初めにシェルスクリプト `build.sh` を用いてビルドします．
 ビルドが完了すると，各プロジェクトの実行ファイル `*.out` が作成されます．
 
 ```bash
@@ -40,31 +51,26 @@ LICENSE         build.sh  lib                    simple_udp-receiver.out
 README.md       clear.sh  simple_tcp-client.out  simple_udp-sender.out
 ```
 
+### Execution
 
-## Usage
 
-## Project
+## References
 
-|プロジェクト名|概要|
-|---|---|
-|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|
-|Simple UDP|UDP を用いて短いメッセージの送受信を行う．|
-|TCP File Transfer|TCP を用いてファイル転送を行う．|
-|UDP File Transfer|UDP を用いてファイル転送を行う．|
+1. M.J. Donahoo & K.L. Calvert. TCP/IP ソケットプログラミング C言語編. 小高知宏監訳, オーム社, 2003.
+1. M.J. Donahoo & K.L. Calvert. TCP/IP Sockets in C. Seconds Edition. Morgan Kaufmann Publishers, 2009.
+1. 富永和人・権藤克彦. 例解 UNIX/Linux プログラミング教室. オーム社, 2018.
 
 
 ## サンプルデータについて
 
-フォルダ `data/` にある画像及び動画は，すべて Creative Commons Zero (CC0) に基づいて配布されたものです．
-
+ディレクトリ `data/` にある画像及び動画は，すべて Creative Commons Zero (CC0) に基づいて配布されたものです．
 
 ### 画像
 
-1. Vincent van Gogh. "Self-Portrait". 1887. The Art Institute of Chicago. <https://www.artic.edu/artworks/80607/self-portrait>.
-1. Claude Monet. "Water Lilies". 1906. The Art Institute of Chicago. <https://www.artic.edu/artworks/16568/water-lilies>.
-
+1. Vincent van Gogh. "Self-Portrait". 1887. The Art Institute of Chicago, <https://www.artic.edu/artworks/80607/self-portrait>, (参照 2023-10-22).
+1. Claude Monet. "Water Lilies". 1906. The Art Institute of Chicago, <https://www.artic.edu/artworks/16568/water-lilies>, (参照 2023-10-21).
 
 ### 動画
 
-1. Kelly. "Pouring Hot water In A Coffee Filter Cup". Pexels. <https://www.pexels.com/video/pouring-hot-water-in-a-coffee-filter-cup-2853793/>.
-1. Sakura Studio Videoproduktion. "Drone Footage Of The Ocean". Pexels. <https://www.pexels.com/video/drone-footage-of-the-ocean-4232194/>.
+1. Kelly. "Pouring Hot water In A Coffee Filter Cup". Pexels, <https://www.pexels.com/video/pouring-hot-water-in-a-coffee-filter-cup-2853793/>, (参照 2023-10-22).
+1. Sakura Studio Videoproduktion. "Drone Footage Of The Ocean". Pexels, <https://www.pexels.com/video/drone-footage-of-the-ocean-4232194/>, (参照 2023-10-22).
