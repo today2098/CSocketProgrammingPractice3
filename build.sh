@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Generate.
 echo '> mkdir build'
 mkdir build

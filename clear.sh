@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Remove output files.
 echo '> rm -r output'
 rm -rf output
