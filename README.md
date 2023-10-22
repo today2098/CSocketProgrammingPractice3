@@ -1,8 +1,49 @@
 # CSocketProgrammingPractice3
+
 ソケットプログラミングを勉強した際の成果物．
 
 
-## プロジェクトの概要
+## Environment
+
+以下の環境で動作を確認しました．
+
+- Ubuntu 20.04.6 LTS @ WSL1 @ Windows 11
+- GCC 9.4.0
+- Cmake 3.16.3
+
+
+### Prerequisites
+
+前提として，一式のビルドツールがインストールされている必要があります．
+
+```bash
+$ sudo apt update
+$ sudo apt upgrade
+$ sudo apt install build-essential
+```
+
+
+## Build
+
+初めにシェルスクリプト `build.sh` を利用してビルドします．
+ビルドが完了すると，各プロジェクトの実行ファイル `*.out` が作成されます．
+
+```bash
+$ pwd  # ~/workspace/CSocketProgrammingPractice3
+$ ls
+CMakeLists.txt  LICENSE  README.md  build.sh  clear.sh  data  lib  src
+$ ./build.sh
+...
+$ ls
+CMakeLists.txt  build     data                   simple_tcp-server.out    src
+LICENSE         build.sh  lib                    simple_udp-receiver.out
+README.md       clear.sh  simple_tcp-client.out  simple_udp-sender.out
+```
+
+
+## Usage
+
+## Project
 
 |プロジェクト名|概要|
 |---|---|
