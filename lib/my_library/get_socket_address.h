@@ -1,6 +1,7 @@
 #ifndef C_SOCKET_PROGRAMMING_PRACTICE_MY_LIBRARY_GET_SOCKET_ADDRESS_H
 #define C_SOCKET_PROGRAMMING_PRACTICE_MY_LIBRARY_GET_SOCKET_ADDRESS_H 1
 
+#include <netinet/in.h>
 #include <stdio.h>
 #include <sys/socket.h>
 

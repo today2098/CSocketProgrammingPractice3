@@ -4,20 +4,22 @@
 #include <assert.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/socket.h>
 
 void GetSocketAddress(const struct sockaddr *addr, char buf[], size_t len) {
+    memset(buf, 0, len);
     if(addr->sa_family == AF_INET) {
         assert(len >= MY_INET_ADDRSTRLEN);
         char buf0[INET_ADDRSTRLEN] = {};
         inet_ntop(AF_INET, &(((struct sockaddr_in *)addr)->sin_addr.s_addr), buf, INET_ADDRSTRLEN);
         uint16_t port = ntohs(((struct sockaddr_in *)addr)->sin_port);
-        snprintf(buf, len, "%s:%s", buf0, port);
+        snprintf(buf, len, "%s:%d", buf0, port);
     } else if(addr->sa_family == AF_INET6) {
         assert(len >= MY_INET6_ADDRSTRLEN);
         char buf0[INET6_ADDRSTRLEN] = {};
         inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)addr)->sin6_addr.s6_addr), buf, INET6_ADDRSTRLEN);
         uint16_t port = ntohs(((struct sockaddr_in6 *)addr)->sin6_port);
-        snprintf(buf, len, "[%s]:%s", buf0, port);
+        snprintf(buf, len, "[%s]:%d", buf0, port);
     }
 }
