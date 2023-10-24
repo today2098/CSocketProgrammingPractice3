@@ -3,3 +3,6 @@ target_link_libraries(udp_file_transfer-receiver.out my_library)
 
 add_executable(udp_file_transfer-sender.out protocol.h sender.c)
 target_link_libraries(udp_file_transfer-sender.out my_library)
+
+add_executable(udp_file_transfer-sender_nr.out protocol.h sender_nr.c)
+target_link_libraries(udp_file_transfer-sender_nr.out my_library)
