@@ -57,6 +57,12 @@ int main(int argc, char *argv[]) {
     int sock = -1;
     struct addrinfo *result;
     for(result = result0; result; result = result->ai_next) {
+        // [debug] サーバのソケットアドレスを表示．
+        char buf0[MY_INET6_ADDRSTRLEN];
+        GetSocketAddress(result->ai_addr, buf0, MY_INET6_ADDRSTRLEN);
+        printf("try to establish a connection to %s\n", buf0);
+        fflush(stdout);
+
         // (3) socket(): ソケットを作成．
         sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
         if(sock == -1) continue;
@@ -68,11 +74,7 @@ int main(int argc, char *argv[]) {
             sock = -1;
             continue;
         }
-
-        // [debug] サーバのソケットアドレスを表示．
-        char buf0[MY_INET6_ADDRSTRLEN];
-        GetSocketAddress(result->ai_addr, buf0, MY_INET6_ADDRSTRLEN);
-        printf("connect to %s\n", buf0);
+        printf("connection successful\n");
         fflush(stdout);
     }
     freeaddrinfo(result0);
