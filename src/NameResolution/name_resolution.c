@@ -19,16 +19,16 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    const char *hostname = argv[1];                   // ホスト名．
-    const char *port = (argc == 3 ? argv[2] : NULL);  // ポート番号またはサービス名．
+    const char *hostname = argv[1];                       // ホスト名．
+    const char *port_str = (argc == 3 ? argv[2] : NULL);  // ポート番号またはサービス名．
 
     // (1) 検索条件を指定する．
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
 
-    // (2) 指定されたホスト名とサービス名から，名前解決処理を行う．
+    // (2) getaddrinfo(): 指定されたホスト名とサービス名から，名前解決処理を行う．
     struct addrinfo *result0;
-    int status = getaddrinfo(hostname, port, &hints, &result0);
+    int status = getaddrinfo(hostname, port_str, &hints, &result0);
     if(status != 0) {
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(status));
         return 1;
