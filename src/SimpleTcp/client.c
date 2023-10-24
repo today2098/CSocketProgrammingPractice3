@@ -19,9 +19,9 @@ int main() {
     // (2) 接続先指定用のアドレス構造体を用意．
     struct sockaddr_in server;
     memset(&server, 0, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_port = htons(12345);
-    // アドレスをテキスト形式からバイナリ形式に変換する．127.0.0.1はlocalhost.
+    server.sin_family = AF_INET;     // IPv4.
+    server.sin_port = htons(12345);  // ポート番号．
+    // IPアドレスをテキスト形式からバイナリ形式に変換する．127.0.0.1はlocalhost.
     res = inet_pton(AF_INET, "127.0.0.1", &server.sin_addr.s_addr);
     if(res == 0 || res == -1) {
         if(res == 0) fprintf(stderr, "wrong network address notation\n");
@@ -42,11 +42,11 @@ int main() {
     // (4) read(): メッセージを受信．
     char buf[1024];
     ssize_t n = read(sock, buf, sizeof(buf) - 1);
-    buf[n] = '\0';
     if(n == -1) {
         perror("read()");
         return 1;
     }
+    buf[n] = '\0';
 
     // [debug] メッセージ内容を表示．
     printf("receive message\n");
