@@ -1,4 +1,4 @@
-#include "die_with_system_message.h"
+#include "handle_error.h"
 
 #include <errno.h>
 #include <stdio.h>
