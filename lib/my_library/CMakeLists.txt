@@ -1,2 +1,2 @@
-add_library(my_library SHARED die_with_system_message.h die_with_system_message.c directory.h get_socket_address.h get_socket_address.c)
+add_library(my_library SHARED handle_error.h handle_error.c directory.h get_socket_address.h get_socket_address.c)
 target_include_directories(my_library PUBLIC ${PROJECT_SOURCE_DIR}/lib)

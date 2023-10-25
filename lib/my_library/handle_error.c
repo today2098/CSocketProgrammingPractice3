@@ -5,16 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-void DieWithSystemMessage(int line, const char *msg) {
-    fprintf(stderr, "line: %d\n", line);
-    perror(msg);
-    fprintf(stderr, "errno: %d\n", errno);
-    exit(1);
+void PrintSystemMessage(int line, const char *context, int no) {
+    fprintf(stderr, "[error] line: %d, errno: %d, ", line, no);
+    if(context == NULL) fprintf(stderr, "message: %s\n", strerror(no));
+    else fprintf(stderr, "%s: %s\n", context, strerror(no));
 }
 
-void DieWithSystemMessage2(int line, const char *msg, int no) {
-    fprintf(stderr, "line: %d\n", line);
-    fprintf(stderr, "%s: %s\n", msg, strerror(no));
-    fprintf(stderr, "errno: %d\n", no);
+void DieWithSystemMessage(int line, const char *context, int no) {
+    PrintSystemMessage(line, context, no);
     exit(1);
 }
