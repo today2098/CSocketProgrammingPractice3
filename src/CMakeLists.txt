@@ -1,6 +1,7 @@
 add_subdirectory(NameResolution)
 add_subdirectory(SimpleTcp)
 add_subdirectory(SimpleUdp)
+add_subdirectory(SimpleMcast)
 add_subdirectory(TcpFileTransfer)
 add_subdirectory(UdpFileTransfer)
-add_subdirectory(SimpleMcast)
+add_subdirectory(MultiTcpClient)
