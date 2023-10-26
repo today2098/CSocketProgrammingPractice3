@@ -2,9 +2,6 @@
 
 ソケットプログラミングを勉強した際の成果物．
 
-
-## Projects
-
 |Project|Summary|Model|Keyword|
 |---|---|---|---|
 |Simple TCP|TCP を用いて短いメッセージの送受信を行う．|One to one|TCP|
@@ -13,7 +10,7 @@
 |TCP File Transfer|TCP を用いてファイル転送を行う．|One to one|TCP, ファイル転送|
 |UDP File Transfer|UDP を用いてファイル転送を行う．|One to one|UDP, ファイル転送|
 |Multi TCP Client|スレッドを用いた並列処理により，1対多の通信を行う．|One to many|TCP, マルチクライアント|
-|My Library|一部プロジェクトで用いられる自作ライブラリ群||
+|My Library|一部プロジェクトで用いられる自作ライブラリ群|-|-|
 
 
 ## Environment
@@ -23,6 +20,7 @@
 - Ubuntu 20.04.6 LTS @ WSL1 @ Windows 11
 - GCC 9.4.0
 - Cmake 3.16.3
+
 
 ### Prerequisites
 
@@ -54,7 +52,29 @@ LICENSE         build.sh  lib                    simple_udp-receiver.out
 README.md       clear.sh  simple_tcp-client.out  simple_udp-sender.out
 ```
 
+
 ### Execution
+
+
+### Initialization
+
+シェルスクリプト `clean.sh` を用いると，ワークスペース配下にある次のファイル及びディレクトリを削除します．
+
+- cmake の build ディレクトリ `build/`
+- 実行ファイル `*.out`
+- ディレクトリ `output/`
+
+```bash
+$ pwd  # ~/workspace/CSocketProgrammingPractice3
+$ ls
+CMakeLists.txt  build     data    simple_tcp-client.out    simple_udp-sender.out
+LICENSE         build.sh  lib     simple_tcp-server.out    src
+README.md       clear.sh  output  simple_udp-receiver.out
+$ ./clean.sh
+...
+$ ls
+CMakeLists.txt  LICENSE  README.md  build.sh  clear.sh  data  lib  src
+```
 
 
 ## References
@@ -68,10 +88,12 @@ README.md       clear.sh  simple_tcp-client.out  simple_udp-sender.out
 
 ディレクトリ `data/` にある画像及び動画は，すべて Creative Commons Zero (CC0) に基づいて配布されたものです．
 
+
 ### 画像
 
 1. Vincent van Gogh. "Self-Portrait". 1887. The Art Institute of Chicago, <https://www.artic.edu/artworks/80607/self-portrait>, (参照 2023-10-22).
 1. Claude Monet. "Water Lilies". 1906. The Art Institute of Chicago, <https://www.artic.edu/artworks/16568/water-lilies>, (参照 2023-10-21).
+
 
 ### 動画
 
