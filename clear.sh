@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Remove output files.
-echo '> rm -r output'
-rm -rf output
+# Remove build directory.
+echo '> rm -rv build'
+rm -rv build
 
 # Remove exec files.
-echo '> rm *.out'
-rm *.out
+echo '\n> rm -v *.out'
+rm -v *.out
 
-# Remove "build/" directory.
-echo '> rm -r build'
-rm -rf build
+# Remove output directory.
+echo '\n> rm -rv output'
+rm -rv output
