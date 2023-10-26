@@ -5,17 +5,20 @@
 
 ## Projects
 
-|プロジェクト名|概要|
-|---|---|
-|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|
-|Simple UDP|UDP を用いて短いメッセージの送受信を行う．|
-|TCP File Transfer|TCP を用いてファイル転送を行う．|
-|UDP File Transfer|UDP を用いてファイル転送を行う．|
+|Project|Summary|Model|Keyword|
+|---|---|---|---|
+|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|One to one|TCP|
+|Simple UDP|UDP を用いて短いメッセージの送受信を行う．|One to one|UDP|
+|Simple Multicast|マルチキャストによって，特定の複数の端末に対し，同一のメッセージを送信する．|One to many|UDP, マルチキャスト|
+|TCP File Transfer|TCP を用いてファイル転送を行う．|One to one|TCP, ファイル転送|
+|UDP File Transfer|UDP を用いてファイル転送を行う．|One to one|UDP, ファイル転送|
+|Multi TCP Client|スレッドを用いた並列処理により，1対多の通信を行う．|One to many|TCP, マルチクライアント|
+|My Library|一部プロジェクトで用いられる自作ライブラリ群||
 
 
 ## Environment
 
-以下の環境で動作を確認しました．
+以下の環境で動作確認しました．
 
 - Ubuntu 20.04.6 LTS @ WSL1 @ Windows 11
 - GCC 9.4.0
@@ -23,7 +26,7 @@
 
 ### Prerequisites
 
-前提として，一式のビルドツールがインストールされている必要があります．
+前提として，C/C++ に関する一式のビルドツールがインストールされている必要があります．
 
 ```bash
 $ sudo apt update
