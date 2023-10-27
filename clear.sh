@@ -1,13 +1,17 @@
 #!/bin/sh
 
-# Remove build directory.
-echo '> rm -rv build'
-rm -rv build
+BUILD_TREE='build'
+OUTPUT_DIR='output'
 
-# Remove exec files.
-echo '\n> rm -v *.out'
+
+# Remove build tree.
+printf "> rm -rv ${BUILD_TREE}\n"
+rm -rv $BUILD_TREE
+
+# Remove exe files.
+printf "\n> rm -v *.out\n"
 rm -v *.out
 
 # Remove output directory.
-echo '\n> rm -rv output'
-rm -rv output
+printf "\n> rm -rv ${OUTPUT_DIR}\n"
+rm -rv $OUTPUT_DIR
