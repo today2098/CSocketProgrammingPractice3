@@ -44,20 +44,21 @@ int main(int argc, char *argv[]) {
     int fd = open(filename, O_RDONLY);
     if(fd == -1) DieWithSystemMessage(__LINE__, "open()", errno);
 
-    // (2) 名前解決処理を行う．
+    // (2) 名前解決を行う．
     struct addrinfo hints, *result0;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_DGRAM;  // データグラムソケット (UDP)．
+    hints.ai_socktype = SOCK_DGRAM;
     int status = getaddrinfo(hostname, port_str, &hints, &result0);
     if(status != 0) {
         fprintf(stderr, "[error] line: %d, getaddrinfo(): %s\n", __LINE__, gai_strerror(status));
         return 1;
     }
 
-    // [debug] リンクリスト先頭のソケットアドレスを表示．
+    // [debug] 宛先のソケットアドレスを表示．
+    // 今回はリンクリストの先頭にあるアドレスを用いる．
     char buf0[MY_INET6_ADDRSTRLEN];
-    GetSocketAddress(result0->ai_addr, buf0, MY_INET6_ADDRSTRLEN);
+    GetSocketAddress(result0->ai_addr, buf0, sizeof(buf0));
     printf("socket address: %s\n", buf0);
     fflush(stdout);
 
@@ -69,6 +70,9 @@ int main(int argc, char *argv[]) {
     n = sendto(sock, filename, strlen(filename), 0, result0->ai_addr, result0->ai_addrlen);
     if(n == -1) DieWithSystemMessage(__LINE__, "sendto()", errno);
 
+    printf("send file name\n");
+    fflush(stdout);
+
     // (5) write(): ファイルデータを送信．
     int cnt = 0;
     ssize_t sum = 0;
@@ -76,7 +80,7 @@ int main(int argc, char *argv[]) {
         n = sendto(sock, buf, m, 0, result0->ai_addr, result0->ai_addrlen);
         if(n < m) DieWithSystemMessage(__LINE__, "sendto()", errno);
         sum += n;
-        printf("[%d] %ld bytes (sub-total: %ld bytes)\n", ++cnt, n, sum);
+        printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
         // usleep(delay);
     }

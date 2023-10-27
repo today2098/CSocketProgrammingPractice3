@@ -9,11 +9,11 @@
 #include <unistd.h>
 
 int main() {
-    const char *mcastaddr = "239.192.1.2";
+    const char *mcast_addr = "239.192.1.2";
     const char *port_str = "12345";
     int ret;
 
-    // (1) socket(): ソケットを作成．
+    // (1) socket(): UDPソケットを作成．
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock == -1) {
         perror("socket()");
@@ -21,12 +21,12 @@ int main() {
     }
 
     // (2) bind(): ソケットに名前付けする．
-    struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi(port_str));
-    addr.sin_addr.s_addr = INADDR_ANY;
-    ret = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
+    struct sockaddr_in saddr;
+    memset(&saddr, 0, sizeof(saddr));
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(atoi(port_str));
+    saddr.sin_addr.s_addr = INADDR_ANY;
+    ret = bind(sock, (struct sockaddr *)&saddr, sizeof(saddr));
     if(ret == -1) {
         perror("bind()");
         return 1;
@@ -36,10 +36,13 @@ int main() {
     struct ip_mreq mreq;
     memset(&mreq, 0, sizeof(mreq));
     mreq.imr_interface.s_addr = INADDR_ANY;  // 任意のインターフェイス．
-    ret = inet_pton(AF_INET, mcastaddr, &mreq.imr_multiaddr.s_addr);
-    if(ret == 0 || ret == -1) {
-        if(ret == 0) fprintf(stderr, "wrong network address notation\n");
-        else perror("inet_pton");
+    ret = inet_pton(AF_INET, mcast_addr, &mreq.imr_multiaddr.s_addr);
+    if(ret == -1) {
+        perror("inet_pton()");
+        return 1;
+    }
+    if(ret == 0) {
+        fprintf(stderr, "wrong network address notation\n");
         return 1;
     }
 
@@ -52,7 +55,7 @@ int main() {
         return 1;
     }
 
-    printf("join to %s:%s\n", mcastaddr, port_str);
+    printf("join to %s:%s\n", mcast_addr, port_str);
     fflush(stdout);
 
     // (5) recv(): メッセージを受信．

@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "my_library/directory.h"
+#include "my_library/get_socket_address.h"
 #include "my_library/handle_error.h"
 #include "protocol.h"
 
@@ -28,26 +29,26 @@ int main() {
     if(sock == -1) DieWithSystemMessage(__LINE__, "socket()", errno);
 
     // (2) bind(): ソケットに名前付け．
-    struct sockaddr_in server;
-    memset(&server, 0, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_port = htons(PORT);
-    server.sin_addr.s_addr = INADDR_ANY;
-    ret = bind(sock, (struct sockaddr *)&server, sizeof(server));
+    struct sockaddr_in saddr;
+    memset(&saddr, 0, sizeof(saddr));
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(PORT);
+    saddr.sin_addr.s_addr = INADDR_ANY;
+    ret = bind(sock, (struct sockaddr *)&saddr, sizeof(saddr));
     if(ret == -1) DieWithSystemMessage(__LINE__, "bind()", errno);
 
     // (3) read(): ファイル名を受信．
-    struct sockaddr_in client;
-    memset(&client, 0, sizeof(client));
-    socklen_t len = sizeof(client);
-    n = recvfrom(sock, buf, sizeof(buf) - 1, 0, (struct sockaddr *)&client, &len);
+    struct sockaddr_in dst_saddr;
+    memset(&dst_saddr, 0, sizeof(dst_saddr));
+    socklen_t len = sizeof(dst_saddr);
+    n = recvfrom(sock, buf, sizeof(buf) - 1, 0, (struct sockaddr *)&dst_saddr, &len);
     if(n == -1) DieWithSystemMessage(__LINE__, "recvfrom()", errno);
     buf[n] = '\0';
 
-    // [debug] ファイル名と送信元ソケットアドレスを表示．
-    char buf0[INET_ADDRSTRLEN] = {};
-    inet_ntop(AF_INET, &client.sin_addr, buf0, sizeof(buf0));
-    printf("receive filename \"%s\" from %s:%d\n", buf, buf0, ntohs(client.sin_port));
+    // [debug] ファイル名と送信元のソケットアドレスを表示．
+    char buf0[MY_INET_ADDRSTRLEN];
+    GetSocketAddress((struct sockaddr *)&dst_saddr, buf0, sizeof(buf0));
+    printf("receive filename \"%s\" from %s\n", buf, buf0);
     fflush(stdout);
 
     // (4) open(): 空ファイルを作成．
@@ -59,7 +60,7 @@ int main() {
     ssize_t sum = 0;
     while((m = read(sock, buf, sizeof(buf))) > 0) {
         sum += m;
-        printf("[%d] %ld bytes (sub-total: %ld bytes)\n", ++cnt, m, sum);
+        printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, m, sum);
         fflush(stdout);
         n = write(fd, buf, m);
         if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);

@@ -26,13 +26,13 @@ int main(int argc, char *argv[]) {
     const char *port_str = argv[2];
     int ret;
 
-    // (1) 名前解決処理の検索条件を指定する．
+    // (1) 名前解決の条件を指定．
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;        // IPv4アドレス．
+    hints.ai_family = AF_INET;        // IPv4．
     hints.ai_socktype = SOCK_STREAM;  // ストリームソケット (TCP)．
 
-    // (2) getaddrinfo(): 指定されたホスト名から，名前解決処理を行う．
+    // (2) getaddrinfo(): 指定されたホスト名から，名前解決を行う．
     struct addrinfo *result0;
     int status = getaddrinfo(hostname, port_str, &hints, &result0);
     if(status != 0) {
@@ -57,10 +57,11 @@ int main(int argc, char *argv[]) {
         }
 
         // [debug] サーバのソケットアドレスを表示．
-        char buf[INET_ADDRSTRLEN] = {};
-        inet_ntop(AF_INET, &(((struct sockaddr_in *)(result->ai_addr))->sin_addr.s_addr), buf, INET_ADDRSTRLEN);
+        char buf0[INET_ADDRSTRLEN] = {};
+        inet_ntop(AF_INET, &(((struct sockaddr_in *)(result->ai_addr))->sin_addr.s_addr), buf0, sizeof(buf0));
         uint16_t port = ntohs(((struct sockaddr_in *)(result->ai_addr))->sin_port);
-        printf("connect to %s:%d\n", buf, port);
+        printf("connect to %s:%d\n", buf0, port);
+        fflush(stdout);
     }
 
     // (5) freeaddrinfo(): リンクリストresult0に割り当てられたメモリを解放する．

@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "my_library/directory.h"
+#include "my_library/get_socket_address.h"
 #include "my_library/handle_error.h"
 #include "protocol.h"
 
@@ -49,14 +50,14 @@ int main(int argc, char *argv[]) {
     ret = bind(sock0, (struct sockaddr *)&server, sizeof(server));
     if(ret == -1) DieWithSystemMessage(__LINE__, "bind()", errno);
 
-    // (3) listen(): 接続要求を待ち受ける状態にする．
+    // (3) listen(): 接続要求の受け付けを開始．
     ret = listen(sock0, 5);
     if(ret == -1) DieWithSystemMessage(__LINE__, "listen()", errno);
 
     printf("listen now...\n");
     fflush(stdout);
 
-    // (4) accept(): TCPクライアントからの接続要求を受け付ける．
+    // (4) accept(): TCPクライアントからの接続要求を受け入れる．
     struct sockaddr_in client;
     memset(&client, 0, sizeof(client));
     socklen_t len = sizeof(client);
@@ -64,9 +65,9 @@ int main(int argc, char *argv[]) {
     if(sock == -1) DieWithSystemMessage(__LINE__, "accept()", errno);
 
     // [debug] クライアントのソケットアドレスを表示．
-    char buf0[INET_ADDRSTRLEN] = {};
-    inet_ntop(AF_INET, &client.sin_addr, buf0, sizeof(buf0));
-    printf("accept from %s:%u\n", buf0, ntohs(client.sin_port));
+    char buf0[MY_INET_ADDRSTRLEN];
+    GetSocketAddress((struct sockaddr *)&client, buf0, sizeof(buf0));
+    printf("accept from %s\n", buf0);
     fflush(stdout);
 
     // (5) open(): 空ファイルを作成．
@@ -78,7 +79,7 @@ int main(int argc, char *argv[]) {
     ssize_t sum = 0;
     while((m = read(sock, buf, sizeof(buf))) > 0) {
         sum += m;
-        printf("[%d] %ld bytes (sub-total: %ld bytes)\n", ++cnt, m, sum);
+        printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, m, sum);
         fflush(stdout);
         n = write(fd, buf, m);
         if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);

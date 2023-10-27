@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 int main() {
-    int res;
+    int ret;
 
     // (1) socket(): UDPソケットを作成．
     int sock = socket(PF_INET, SOCK_DGRAM, 0);
@@ -17,13 +17,13 @@ int main() {
     }
 
     // (2) bind(): ソケットに名前付け．
-    struct sockaddr_in server;
-    memset(&server, 0, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_port = htons(12345);
-    server.sin_addr.s_addr = INADDR_ANY;
-    res = bind(sock, (struct sockaddr *)&server, sizeof(server));
-    if(res == -1) {
+    struct sockaddr_in saddr;
+    memset(&saddr, 0, sizeof(saddr));
+    saddr.sin_family = AF_INET;          // IPv4.
+    saddr.sin_port = htons(12345);       // ポート番号．
+    saddr.sin_addr.s_addr = INADDR_ANY;  // IPアドレス（ワイルドカード）．
+    ret = bind(sock, (struct sockaddr *)&saddr, sizeof(saddr));
+    if(ret == -1) {
         perror("bind()");
         return 1;
     }
@@ -41,6 +41,7 @@ int main() {
     printf("receive message\n");
     printf("  message: %s\n", buf);
     printf("  size: %ld bytes\n", n);
+    fflush(stdout);
 
     // (4) close(): ソケットを閉じる．
     close(sock);

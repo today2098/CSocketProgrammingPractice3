@@ -12,8 +12,7 @@
 #include "my_library/handle_error.h"
 #include "protocol.h"
 
-// TCPコネクションに関するデータを格納する構造体．
-struct ClientData {
+struct ThreadArgData {
     int id;
     int sock;
     struct sockaddr_in saddr;
@@ -21,7 +20,7 @@ struct ClientData {
 
 // 英文字cの大小を反転させる．
 void convert(char *c);
-// コネクション確立後に行われるプログラム．
+
 void *thread_func(void *arg);
 
 int main() {
@@ -31,9 +30,11 @@ int main() {
     int sock0 = socket(PF_INET, SOCK_STREAM, 0);
     if(sock0 == -1) DieWithSystemMessage(__LINE__, "socket()", errno);
 
-    // ソケット名の重複利用に関する制限を緩める（"bind(): Address already in use" のエラー対策）．
+    // setsockopt(): ソケット名の重複利用に関する制限を緩める．
+    // "bind(): Address already in use" のエラー対策．
     int val = 1;
-    setsockopt(sock0, SOL_SOCKET, SO_REUSEADDR, (const char *)&val, sizeof(val));
+    ret = setsockopt(sock0, SOL_SOCKET, SO_REUSEADDR, (const char *)&val, sizeof(val));
+    if(ret == -1) DieWithSystemMessage(__LINE__, "setsockopt()", errno);
 
     // (2) bind(): Listen用ソケットに名前付け．
     struct sockaddr_in server;
@@ -44,7 +45,7 @@ int main() {
     ret = bind(sock0, (struct sockaddr *)&server, sizeof(server));
     if(ret == -1) DieWithSystemMessage(__LINE__, "bind()", errno);
 
-    // (3) listen(): 接続要求を待ち受ける状態にする．
+    // (3) listen(): 接続要求の受け付けを開始．
     ret = listen(sock0, 5);
     if(ret == -1) DieWithSystemMessage(__LINE__, "listen()", errno);
 
@@ -52,33 +53,33 @@ int main() {
     fflush(stdout);
 
     for(int i = 0;; ++i) {
-        // (4) malloc(): 新規TCPコネクションに関する情報を格納する構造体を作成する．
-        struct ClientData *cdata = malloc(sizeof(struct ClientData));
-        if(cdata == NULL) DieWithSystemMessage(__LINE__, "malloc()", errno);
-        cdata->id = i;
+        // malloc(): 新しいスレッドに渡す引数を用意．
+        struct ThreadArgData *argdata = malloc(sizeof(struct ThreadArgData));
+        if(argdata == NULL) DieWithSystemMessage(__LINE__, "malloc()", errno);
+        argdata->id = i;
 
-        // (5) accept(): TCPクライアントからの接続要求を受け付ける．
-        socklen_t len = sizeof(cdata->saddr);
-        cdata->sock = accept(sock0, (struct sockaddr *)&cdata->saddr, &len);
-        if(cdata->sock == -1) DieWithSystemMessage(__LINE__, "accept()", errno);
+        // (4) accept(): TCPクライアントからの接続要求を受け付ける．
+        socklen_t len = sizeof(argdata->saddr);
+        argdata->sock = accept(sock0, (struct sockaddr *)&argdata->saddr, &len);
+        if(argdata->sock == -1) DieWithSystemMessage(__LINE__, "accept()", errno);
 
         // [debug] クライアントのソケットアドレスを表示．
         char buf0[MY_INET_ADDRSTRLEN];
-        GetSocketAddress((struct sockaddr *)&cdata->saddr, buf0, sizeof(buf0));
+        GetSocketAddress((struct sockaddr *)&argdata->saddr, buf0, sizeof(buf0));
         printf("[%d] accept form %s\n", i, buf0);
         fflush(stdout);
 
-        // (6) pthread_create(): スレッドを作成し，thread_func()を実行させる．
+        // (5) pthread_create(): スレッドを作成．
         pthread_t th;
-        ret = pthread_create(&th, NULL, thread_func, cdata);
+        ret = pthread_create(&th, NULL, thread_func, argdata);
         if(ret != 0) DieWithSystemMessage(__LINE__, "pthread_create()", ret);
 
-        // (7) pthread_detach(): 親スレッドと子スレッドを切り離す．
+        // (6) pthread_detach(): 親スレッドと子スレッドを切り離す．
         ret = pthread_detach(th);
         if(ret != 0) DieWithSystemMessage(__LINE__, "pthread_detach()", ret);
     }
 
-    // (8) close(): Listen用ソケットを閉じる．
+    // (7) close(): Listen用ソケットを閉じる．
     ret = close(sock0);
     if(ret == -1) DieWithSystemMessage(__LINE__, "close()", errno);
     return 0;
@@ -92,14 +93,15 @@ void convert(char *c) {
 void *thread_func(void *arg) {
     if(arg == NULL) return (void *)-1;
 
-    struct ClientData *cdata = arg;
-    int sock = cdata->sock;
+    struct ThreadArgData *argdata = (struct ThreadArgData *)arg;
+    int id = argdata->id;
+    int sock = argdata->sock;
     char buf0[MY_INET_ADDRSTRLEN];
     char buf[BUF_SIZE];
     ssize_t n;
     int ret;
 
-    // (a-1) read(): 文字列を受信する．
+    // (a-1) read(): 文字列を受信．
     n = read(sock, buf, sizeof(buf) - 1);
     if(n == -1) {
         PrintSystemMessage(__LINE__, "read()", errno);
@@ -108,29 +110,29 @@ void *thread_func(void *arg) {
     buf[n] = '\0';
 
     // [debug]
-    GetSocketAddress((struct sockaddr *)&cdata->saddr, buf0, sizeof(buf0));
-    printf("[%d] receive message from %s\n", cdata->id, buf0);
-    printf("        message: \"%s\"\n", buf);
-    printf("        size:    %ld bytes\n", n);
+    GetSocketAddress((struct sockaddr *)&argdata->saddr, buf0, sizeof(buf0));
+    printf("[%d] receive message from %s\n", id, buf0);
+    printf("       message: \"%s\"\n", buf);
+    printf("       size:    %ld bytes\n", n);
     fflush(stdout);
 
     // (a-2) 文字列を変形させる．
     for(ssize_t i = 0; i < n; ++i) convert(&buf[i]);
 
-    // (a-3) write(): 変更した文字列を送信する．
+    // (a-3) write(): 変更した文字列を送信．
     n = write(sock, buf, strlen(buf));
-    if(n == -1) {
+    if(n < strlen(buf)) {
         PrintSystemMessage(__LINE__, "write()", errno);
         goto Err;
     }
 
     // [debug]
-    printf("[%d] send converted message to %s\n", cdata->id, buf0);
-    printf("        message: \"%s\"\n", buf);
-    printf("        size:    %ld bytes\n", n);
+    printf("[%d] send converted message to %s\n", id, buf0);
+    printf("       message: \"%s\"\n", buf);
+    printf("       size:    %ld bytes\n", n);
     fflush(stdout);
 
-    // (a-4) close(): TCPセッションを終了する．
+    // (a-4) close(): TCPセッションを終了．
     ret = close(sock);
     if(ret == -1) {
         PrintSystemMessage(__LINE__, "close()", errno);

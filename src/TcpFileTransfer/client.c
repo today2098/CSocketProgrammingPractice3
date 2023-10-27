@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    const char *dst_ipaddr = "127.0.0.1";
     const char *filename = argv[1];
+    const char *ipaddr = "127.0.0.1";
     char buf[BUF_SIZE];
     ssize_t m, n;
     int ret;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
-    ret = inet_pton(AF_INET, dst_ipaddr, &server.sin_addr.s_addr);
+    ret = inet_pton(AF_INET, ipaddr, &server.sin_addr.s_addr);
     if(ret == -1) DieWithSystemMessage(__LINE__, "inet_pton()", errno);
     if(ret == 0) {
         fprintf(stderr, "[error] line: %d, inet_pton(): wrong network address notation\n", __LINE__);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     ret = connect(sock, (struct sockaddr *)&server, sizeof(server));
     if(ret == -1) DieWithSystemMessage(__LINE__, "connect()", errno);
 
-    printf("connect to %s:%d\n", dst_ipaddr, PORT);
+    printf("connect to %s:%d\n", ipaddr, PORT);
     fflush(stdout);
 
     // (5) write(): ファイルデータを送信．
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         n = write(sock, buf, m);
         if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);
         sum += n;
-        printf("[%d] %ld bytes (sub-total: %ld bytes)\n", ++cnt, n, sum);
+        printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
     }
     if(m == -1) DieWithSystemMessage(__LINE__, "read()", errno);

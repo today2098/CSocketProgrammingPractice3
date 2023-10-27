@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <sys/socket.h>
 
-const size_t MY_INET_ADDRSTRLEN = INET_ADDRSTRLEN + 6;
-const size_t MY_INET6_ADDRSTRLEN = INET6_ADDRSTRLEN + 8;
+extern const size_t MY_INET_ADDRSTRLEN;
+extern const size_t MY_INET6_ADDRSTRLEN;
 
 // Print socket address from struct sockaddr.
 void GetSocketAddress(const struct sockaddr *addr, char buf[], size_t len);

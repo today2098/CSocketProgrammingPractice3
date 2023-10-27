@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     int fd = open(filename, O_RDONLY);
     if(fd == -1) DieWithSystemMessage(__LINE__, "open()", errno);
 
-    // (2) 名前解決処理を行う．
+    // (2) 名前解決を行う．
     struct addrinfo hints, *result0;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
         n = write(sock, buf, m);
         if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);
         sum += n;
-        printf("[%d] %ld bytes (sub-total: %ld bytes)\n", ++cnt, n, sum);
+        printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
     }
     if(m == -1) DieWithSystemMessage(__LINE__, "read()", errno);

@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 int main() {
-    int res;
+    int ret;
 
     // (1) socket(): TCPソケットを作成．
     int sock = socket(PF_INET, SOCK_STREAM, 0);
@@ -22,16 +22,19 @@ int main() {
     server.sin_family = AF_INET;     // IPv4.
     server.sin_port = htons(12345);  // ポート番号．
     // IPアドレスをテキスト形式からバイナリ形式に変換する．127.0.0.1はlocalhost.
-    res = inet_pton(AF_INET, "127.0.0.1", &server.sin_addr.s_addr);
-    if(res == 0 || res == -1) {
-        if(res == 0) fprintf(stderr, "wrong network address notation\n");
-        else perror("inet_pton");
+    ret = inet_pton(AF_INET, "127.0.0.1", &server.sin_addr.s_addr);
+    if(ret == -1) {
+        perror("inet_pton()");
+        return 1;
+    }
+    if(ret == 0) {
+        fprintf(stderr, "wrong network address notation\n");
         return 1;
     }
 
     // (3) connect(): サーバに接続．
-    res = connect(sock, (struct sockaddr *)&server, sizeof(server));
-    if(res == -1) {
+    ret = connect(sock, (struct sockaddr *)&server, sizeof(server));
+    if(ret == -1) {
         perror("connect()");
         return 1;
     }

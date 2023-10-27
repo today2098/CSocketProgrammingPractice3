@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-const uint16_t PORT = 12345;  // Port number of file server. 16bits.
+const uint16_t PORT = 12345;  // Port number of server. 16bits.
 
 const size_t BUF_SIZE = 65536;  // Buffer size. 2^16.
 

@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 int main() {
-    const char *mcastaddr = "239.192.1.2";
+    const char *mcast_addr = "239.192.1.2";
     const char *port_str = "12345";
     struct addrinfo hints, *result0;
     int status;
@@ -44,7 +44,7 @@ int main() {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
-    status = getaddrinfo(mcastaddr, NULL, &hints, &result0);
+    status = getaddrinfo(mcast_addr, NULL, &hints, &result0);
     if(status != 0) {
         fprintf(stderr, "getaddrinfo(): %s\n", gai_strerror(status));
         return 1;
@@ -62,7 +62,7 @@ int main() {
         return 1;
     }
 
-    printf("join to %s:%s\n", mcastaddr, port_str);
+    printf("join to %s:%s\n", mcast_addr, port_str);
     fflush(stdout);
 
     // (6) recv(): メッセージを受信．
