@@ -57,14 +57,14 @@ int main(int argc, char *argv[]) {
         // (2) socket(): ソケットを作成．
         sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
         if(sock == -1) {
-            PrintSystemMessage(__LINE__, "socket()", errno);
+            PrintSystemMessage(__LINE__, errno, "socket()");
             continue;
         }
 
         // (3) connect(): サーバに接続．
         ret = connect(sock, result->ai_addr, result->ai_addrlen);
         if(ret == -1) {
-            PrintSystemMessage(__LINE__, "connect()", errno);
+            PrintSystemMessage(__LINE__, errno, "connect()");
             close(sock);
             sock = -1;
             continue;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 
     // (5) write(): 文字列を送信．
     n = write(sock, buf, strlen(buf));
-    if(n < strlen(buf)) DieWithSystemMessage(__LINE__, "write()", errno);
+    if(n < strlen(buf)) DieWithSystemMessage(__LINE__, errno, "write()");
 
     // [debug]
     printf("send message\n");
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
     // (6) read(): 変更された文字列を受信．
     n = read(sock, buf, sizeof(buf) - 1);
-    if(n == -1) DieWithSystemMessage(__LINE__, "read()", errno);
+    if(n == -1) DieWithSystemMessage(__LINE__, errno, "read()");
     buf[n] = '\0';
 
     // [debug]

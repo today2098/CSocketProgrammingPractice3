@@ -28,13 +28,13 @@ int main() {
 
     // (1) socket(): Listen用ソケットを作成．
     int sock0 = socket(PF_INET, SOCK_STREAM, 0);
-    if(sock0 == -1) DieWithSystemMessage(__LINE__, "socket()", errno);
+    if(sock0 == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
     // setsockopt(): ソケット名の重複利用に関する制限を緩める．
     // "bind(): Address already in use" のエラー対策．
     int val = 1;
     ret = setsockopt(sock0, SOL_SOCKET, SO_REUSEADDR, (const char *)&val, sizeof(val));
-    if(ret == -1) DieWithSystemMessage(__LINE__, "setsockopt()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "setsockopt()");
 
     // (2) bind(): Listen用ソケットに名前付け．
     struct sockaddr_in server;
@@ -43,11 +43,11 @@ int main() {
     server.sin_port = htons(PORT);
     server.sin_addr.s_addr = INADDR_ANY;
     ret = bind(sock0, (struct sockaddr *)&server, sizeof(server));
-    if(ret == -1) DieWithSystemMessage(__LINE__, "bind()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "bind()");
 
     // (3) listen(): 接続要求の受け付けを開始．
     ret = listen(sock0, 5);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "listen()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "listen()");
 
     printf("listen now...\n");
     fflush(stdout);
@@ -55,13 +55,13 @@ int main() {
     for(int i = 0;; ++i) {
         // malloc(): 新しいスレッドに渡す引数を用意．
         struct ThreadArgData *argdata = malloc(sizeof(struct ThreadArgData));
-        if(argdata == NULL) DieWithSystemMessage(__LINE__, "malloc()", errno);
+        if(argdata == NULL) DieWithSystemMessage(__LINE__, errno, "malloc()");
         argdata->id = i;
 
         // (4) accept(): TCPクライアントからの接続要求を受け付ける．
         socklen_t len = sizeof(argdata->saddr);
         argdata->sock = accept(sock0, (struct sockaddr *)&argdata->saddr, &len);
-        if(argdata->sock == -1) DieWithSystemMessage(__LINE__, "accept()", errno);
+        if(argdata->sock == -1) DieWithSystemMessage(__LINE__, errno, "accept()");
 
         // [debug] クライアントのソケットアドレスを表示．
         char buf0[MY_INET_ADDRSTRLEN];
@@ -72,16 +72,16 @@ int main() {
         // (5) pthread_create(): スレッドを作成．
         pthread_t th;
         ret = pthread_create(&th, NULL, thread_func, argdata);
-        if(ret != 0) DieWithSystemMessage(__LINE__, "pthread_create()", ret);
+        if(ret != 0) DieWithSystemMessage(__LINE__, ret, "pthread_create()");
 
         // (6) pthread_detach(): 親スレッドと子スレッドを切り離す．
         ret = pthread_detach(th);
-        if(ret != 0) DieWithSystemMessage(__LINE__, "pthread_detach()", ret);
+        if(ret != 0) DieWithSystemMessage(__LINE__, ret, "pthread_detach()");
     }
 
     // (7) close(): Listen用ソケットを閉じる．
     ret = close(sock0);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "close()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "close()");
     return 0;
 }
 
@@ -104,7 +104,7 @@ void *thread_func(void *arg) {
     // (a-1) read(): 文字列を受信．
     n = read(sock, buf, sizeof(buf) - 1);
     if(n == -1) {
-        PrintSystemMessage(__LINE__, "read()", errno);
+        PrintSystemMessage(__LINE__, errno, "read()");
         goto Err;
     }
     buf[n] = '\0';
@@ -122,7 +122,7 @@ void *thread_func(void *arg) {
     // (a-3) write(): 変更した文字列を送信．
     n = write(sock, buf, strlen(buf));
     if(n < strlen(buf)) {
-        PrintSystemMessage(__LINE__, "write()", errno);
+        PrintSystemMessage(__LINE__, errno, "write()");
         goto Err;
     }
 
@@ -135,7 +135,7 @@ void *thread_func(void *arg) {
     // (a-4) close(): TCPセッションを終了．
     ret = close(sock);
     if(ret == -1) {
-        PrintSystemMessage(__LINE__, "close()", errno);
+        PrintSystemMessage(__LINE__, errno, "close()");
         goto Err;
     }
 

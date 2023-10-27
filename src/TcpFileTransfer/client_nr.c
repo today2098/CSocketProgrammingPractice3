@@ -37,11 +37,11 @@ int main(int argc, char *argv[]) {
 
     // ディレクトリを移動．
     ret = chdir(DATA_DIR_PATH);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "chdir()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) open(): ファイルを開く．
     int fd = open(filename, O_RDONLY);
-    if(fd == -1) DieWithSystemMessage(__LINE__, "open()", errno);
+    if(fd == -1) DieWithSystemMessage(__LINE__, errno, "open()");
 
     // (2) 名前解決を行う．
     struct addrinfo hints, *result0;
@@ -67,14 +67,14 @@ int main(int argc, char *argv[]) {
         // (3) socket(): ソケットを作成．
         sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
         if(sock == -1) {
-            PrintSystemMessage(__LINE__, "socket()", errno);
+            PrintSystemMessage(__LINE__, errno, "socket()");
             continue;
         }
 
         // (4) connect(): サーバに接続．
         ret = connect(sock, result->ai_addr, result->ai_addrlen);
         if(ret == -1) {
-            PrintSystemMessage(__LINE__, "connect()", errno);
+            PrintSystemMessage(__LINE__, errno, "connect()");
             close(sock);
             sock = -1;
             continue;
@@ -94,12 +94,12 @@ int main(int argc, char *argv[]) {
     ssize_t sum = 0;
     while((m = read(fd, buf, sizeof(buf))) > 0) {
         n = write(sock, buf, m);
-        if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);
+        if(n < m) DieWithSystemMessage(__LINE__, errno, "write()");
         sum += n;
         printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
     }
-    if(m == -1) DieWithSystemMessage(__LINE__, "read()", errno);
+    if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
 
     printf("transmission complete\n");
     fflush(stdout);

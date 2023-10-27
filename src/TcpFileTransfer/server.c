@@ -35,11 +35,11 @@ int main(int argc, char *argv[]) {
     // ディレクトリを移動．
     mkdir(OUTPUT_DIR_PATH, 0755);
     ret = chdir(OUTPUT_DIR_PATH);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "chdir()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) socket(): Listen用ソケットを作成．
     int sock0 = socket(PF_INET, SOCK_STREAM, 0);
-    if(sock0 == -1) DieWithSystemMessage(__LINE__, "socket()", errno);
+    if(sock0 == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
     // (2) bind(): Listen用ソケットに名前付け．
     struct sockaddr_in server;
@@ -48,11 +48,11 @@ int main(int argc, char *argv[]) {
     server.sin_port = htons(PORT);
     server.sin_addr.s_addr = INADDR_ANY;
     ret = bind(sock0, (struct sockaddr *)&server, sizeof(server));
-    if(ret == -1) DieWithSystemMessage(__LINE__, "bind()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "bind()");
 
     // (3) listen(): 接続要求の受け付けを開始．
     ret = listen(sock0, 5);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "listen()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "listen()");
 
     printf("listen now...\n");
     fflush(stdout);
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
     memset(&client, 0, sizeof(client));
     socklen_t len = sizeof(client);
     int sock = accept(sock0, (struct sockaddr *)&client, &len);
-    if(sock == -1) DieWithSystemMessage(__LINE__, "accept()", errno);
+    if(sock == -1) DieWithSystemMessage(__LINE__, errno, "accept()");
 
     // [debug] クライアントのソケットアドレスを表示．
     char buf0[MY_INET_ADDRSTRLEN];
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
     // (5) open(): 空ファイルを作成．
     int fd = open(output_filename, O_WRONLY | O_CREAT | O_TRUNC, 0755);
-    if(fd == -1) DieWithSystemMessage(__LINE__, "open()", errno);
+    if(fd == -1) DieWithSystemMessage(__LINE__, errno, "open()");
 
     // (6) read(): ファイルデータを受信．
     int cnt = 0;
@@ -82,9 +82,9 @@ int main(int argc, char *argv[]) {
         printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, m, sum);
         fflush(stdout);
         n = write(fd, buf, m);
-        if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);
+        if(n < m) DieWithSystemMessage(__LINE__, errno, "write()");
     }
-    if(m == -1) DieWithSystemMessage(__LINE__, "read()", errno);
+    if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
 
     printf(
         "connection is closed\n"

@@ -22,11 +22,11 @@ int main() {
     // ディレクトリを移動．
     mkdir(OUTPUT_DIR_PATH, 0755);
     ret = chdir(OUTPUT_DIR_PATH);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "chdir()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) socket(): UDPソケットを作成．
     int sock = socket(PF_INET, SOCK_DGRAM, 0);
-    if(sock == -1) DieWithSystemMessage(__LINE__, "socket()", errno);
+    if(sock == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
     // (2) bind(): ソケットに名前付け．
     struct sockaddr_in saddr;
@@ -35,14 +35,14 @@ int main() {
     saddr.sin_port = htons(PORT);
     saddr.sin_addr.s_addr = INADDR_ANY;
     ret = bind(sock, (struct sockaddr *)&saddr, sizeof(saddr));
-    if(ret == -1) DieWithSystemMessage(__LINE__, "bind()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "bind()");
 
     // (3) read(): ファイル名を受信．
     struct sockaddr_in dst_saddr;
     memset(&dst_saddr, 0, sizeof(dst_saddr));
     socklen_t len = sizeof(dst_saddr);
     n = recvfrom(sock, buf, sizeof(buf) - 1, 0, (struct sockaddr *)&dst_saddr, &len);
-    if(n == -1) DieWithSystemMessage(__LINE__, "recvfrom()", errno);
+    if(n == -1) DieWithSystemMessage(__LINE__, errno, "recvfrom()");
     buf[n] = '\0';
 
     // [debug] ファイル名と送信元のソケットアドレスを表示．
@@ -53,7 +53,7 @@ int main() {
 
     // (4) open(): 空ファイルを作成．
     int fd = open(buf, O_WRONLY | O_CREAT | O_TRUNC, 0755);
-    if(fd == -1) DieWithSystemMessage(__LINE__, "open()", errno);
+    if(fd == -1) DieWithSystemMessage(__LINE__, errno, "open()");
 
     // (5) recv(): ファイルデータを受信．
     int cnt = 0;
@@ -63,9 +63,9 @@ int main() {
         printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, m, sum);
         fflush(stdout);
         n = write(fd, buf, m);
-        if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);
+        if(n < m) DieWithSystemMessage(__LINE__, errno, "write()");
     }
-    if(m == -1) DieWithSystemMessage(__LINE__, "read()", errno);
+    if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
 
     printf("transmission complete\n");
     fflush(stdout);

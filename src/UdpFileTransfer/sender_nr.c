@@ -38,11 +38,11 @@ int main(int argc, char *argv[]) {
 
     // ディレクトリを移動．
     ret = chdir(DATA_DIR_PATH);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "chdir()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) open(): ファイルを開く．
     int fd = open(filename, O_RDONLY);
-    if(fd == -1) DieWithSystemMessage(__LINE__, "open()", errno);
+    if(fd == -1) DieWithSystemMessage(__LINE__, errno, "open()");
 
     // (2) 名前解決を行う．
     struct addrinfo hints, *result0;
@@ -64,11 +64,11 @@ int main(int argc, char *argv[]) {
 
     // (3) socket(): UDPソケットを作成．
     int sock = socket(result0->ai_family, result0->ai_socktype, result0->ai_protocol);
-    if(sock == -1) DieWithSystemMessage(__LINE__, "socket()", errno);
+    if(sock == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
     // (4) write(): ファイル名を送信．
     n = sendto(sock, filename, strlen(filename), 0, result0->ai_addr, result0->ai_addrlen);
-    if(n == -1) DieWithSystemMessage(__LINE__, "sendto()", errno);
+    if(n == -1) DieWithSystemMessage(__LINE__, errno, "sendto()");
 
     printf("send file name\n");
     fflush(stdout);
@@ -78,16 +78,16 @@ int main(int argc, char *argv[]) {
     ssize_t sum = 0;
     while((m = read(fd, buf, sizeof(buf))) > 0) {
         n = sendto(sock, buf, m, 0, result0->ai_addr, result0->ai_addrlen);
-        if(n < m) DieWithSystemMessage(__LINE__, "sendto()", errno);
+        if(n < m) DieWithSystemMessage(__LINE__, errno, "sendto()");
         sum += n;
         printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
         // usleep(delay);
     }
-    if(m == -1) DieWithSystemMessage(__LINE__, "read()", errno);
+    if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
     // サイズ0のデータグラムを送信する．
     n = sendto(sock, buf, 0, 0, result0->ai_addr, result0->ai_addrlen);
-    if(n == -1) DieWithSystemMessage(__LINE__, "sendto()", errno);
+    if(n == -1) DieWithSystemMessage(__LINE__, errno, "sendto()");
 
     printf("transmission complete\n");
     fflush(stdout);

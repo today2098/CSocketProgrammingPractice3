@@ -33,15 +33,15 @@ int main(int argc, char *argv[]) {
 
     // ディレクトリを移動．
     ret = chdir(DATA_DIR_PATH);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "chdir()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) open(): ファイルを開く．
     int fd = open(filename, O_RDONLY);
-    if(fd == -1) DieWithSystemMessage(__LINE__, "open()", errno);
+    if(fd == -1) DieWithSystemMessage(__LINE__, errno, "open()");
 
     // (2) socket(): TCPソケットを作成．
     int sock = socket(PF_INET, SOCK_STREAM, 0);
-    if(sock == -1) DieWithSystemMessage(__LINE__, "socket()", errno);
+    if(sock == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
     // (3) 接続先指定用のアドレス構造体を用意．
     struct sockaddr_in server;
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
     ret = inet_pton(AF_INET, ipaddr, &server.sin_addr.s_addr);
-    if(ret == -1) DieWithSystemMessage(__LINE__, "inet_pton()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "inet_pton()");
     if(ret == 0) {
         fprintf(stderr, "[error] line: %d, inet_pton(): wrong network address notation\n", __LINE__);
         return 1;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     // (4) connect(): サーバに接続．
     ret = connect(sock, (struct sockaddr *)&server, sizeof(server));
-    if(ret == -1) DieWithSystemMessage(__LINE__, "connect()", errno);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "connect()");
 
     printf("connect to %s:%d\n", ipaddr, PORT);
     fflush(stdout);
@@ -67,12 +67,12 @@ int main(int argc, char *argv[]) {
     ssize_t sum = 0;
     while((m = read(fd, buf, sizeof(buf))) > 0) {
         n = write(sock, buf, m);
-        if(n < m) DieWithSystemMessage(__LINE__, "write()", errno);
+        if(n < m) DieWithSystemMessage(__LINE__, errno, "write()");
         sum += n;
         printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
     }
-    if(m == -1) DieWithSystemMessage(__LINE__, "read()", errno);
+    if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
 
     printf("transmission complete\n");
     fflush(stdout);
