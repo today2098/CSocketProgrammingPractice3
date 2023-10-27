@@ -2,15 +2,16 @@
 
 ソケットプログラミングを勉強した際の成果物．
 
-|Project|Summary|Model|Keyword|
-|---|---|---|---|
-|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|One to one|TCP|
-|Simple UDP|UDP を用いて短いメッセージの送受信を行う．|One to one|UDP|
-|Simple Multicast|マルチキャストによって，特定の複数の端末に対し，同一のメッセージを送信する．|One to many|UDP, マルチキャスト|
-|TCP File Transfer|TCP を用いてファイル転送を行う．|One to one|TCP, ファイル転送|
-|UDP File Transfer|UDP を用いてファイル転送を行う．|One to one|UDP, ファイル転送|
-|Multi TCP Client|スレッドを用いた並列処理により，1対多の通信を行う．|One to many|TCP, マルチクライアント|
-|My Library|一部プロジェクトで用いられる自作ライブラリ群|-|-|
+|ID|Project|Summary|Model|Keyword|
+|:---|---|---|---|---|
+|0.|Name Resolution|与えられたホスト名から名前解決を行う．|-|名前解決|
+|1-1.|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|One to one|TCP|
+|1-2.|TCP File Transfer|TCP を用いてファイル転送を行う．|One to one|TCP, ファイル転送|
+|2-1.|Simple UDP|UDP を用いて短いメッセージの送受信を行う．|One to one|UDP|
+|2-2.|UDP File Transfer|UDP を用いてファイル転送を行う．|One to one|UDP, ファイル転送|
+|3.|Simple Multicast|マルチキャストにより，特定の複数の端末に対し同一のメッセージを送信する．|One to many|UDP, マルチキャスト|
+|4.|Multi TCP Client|スレッドを用いた並列処理により，1対多の通信を行う．|One to many|TCP, マルチクライアント|
+|a.|My Library|一部プロジェクトで用いる自作ライブラリ群|-|-|
 
 
 ## Environment
@@ -58,11 +59,11 @@ README.md       clear.sh  simple_tcp-client.out  simple_udp-sender.out
 
 ### Initialization
 
-シェルスクリプト `clean.sh` を用いると，ワークスペース配下にある次のファイル及びディレクトリを削除します．
+シェルスクリプト `clean.sh` を用いると，以下の作成されたファイルを削除し初期化します．
 
-- cmake の build ディレクトリ `build/`
+- Cmake のビルドツリー `build/`
 - 実行ファイル `*.out`
-- ディレクトリ `output/`
+- 実験の出力先ディレクトリ `output/`
 
 ```bash
 $ pwd  # ~/workspace/CSocketProgrammingPractice3
@@ -79,9 +80,9 @@ CMakeLists.txt  LICENSE  README.md  build.sh  clear.sh  data  lib  src
 
 ## References
 
-1. M.J. Donahoo & K.L. Calvert. TCP/IP ソケットプログラミング C言語編. 小高知宏監訳, オーム社, 2003.
-1. M.J. Donahoo & K.L. Calvert. TCP/IP Sockets in C. Seconds Edition. Morgan Kaufmann Publishers, 2009.
-1. 富永和人・権藤克彦. 例解 UNIX/Linux プログラミング教室. オーム社, 2018.
+1. M.J. Donahoo & K.L. Calvert. TCP/IP ソケットプログラミング C言語編. 小高知宏監訳, オーム社, 2003, 181p.
+1. M.J. Donahoo & K.L. Calvert. TCP/IP Sockets in C. Seconds Edition. Morgan Kaufmann Publishers, 2009, 196p.
+1. 富永和人・権藤克彦. 例解 UNIX/Linux プログラミング教室. オーム社, 2018, 507p.
 
 
 ## サンプルデータについて
