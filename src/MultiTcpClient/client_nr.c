@@ -11,6 +11,7 @@
 
 #include "my_library/get_socket_address.h"
 #include "my_library/handle_error.h"
+#include "my_library/presentation_layer.h"
 #include "protocol.h"
 
 void Usage(char *argv[]) {
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
     const char *hostname = argv[1];
     const char *port_str = argv[2];
     char buf[BUF_SIZE];
-    ssize_t n;
+    size_t len;
     int ret;
 
     // (1) 名前解決を行う．
@@ -90,24 +91,29 @@ int main(int argc, char *argv[]) {
     if(buf[strlen(buf) - 1] == '\n') buf[strlen(buf) - 1] = '\0';
 
     // (5) write(): 文字列を送信．
-    n = write(sock, buf, strlen(buf));
-    if(n < strlen(buf)) DieWithSystemMessage(__LINE__, errno, "write()");
+    len = strlen(buf);
+    ret = Write64bits(sock, len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "write()");
+    ret = WriteByteString(sock, buf, len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "write()");
 
     // [debug]
     printf("send message\n");
     printf("  message: \"%s\"\n", buf);
-    printf("  size:    %ld bytes\n", n);
+    printf("  size:    %ld bytes\n", len);
     fflush(stdout);
 
     // (6) read(): 変更された文字列を受信．
-    n = read(sock, buf, sizeof(buf) - 1);
-    if(n == -1) DieWithSystemMessage(__LINE__, errno, "read()");
-    buf[n] = '\0';
+    ret = Read64bits(sock, &len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "read()");
+    ret = ReadByteString(sock, buf, len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "read()");
+    buf[len] = '\0';
 
     // [debug]
     printf("receive message\n");
     printf("  message: \"%s\"\n", buf);
-    printf("  size:    %ld bytes\n", n);
+    printf("  size:    %ld bytes\n", len);
     fflush(stdout);
 
     // (8) close(): ソケットを閉じる．

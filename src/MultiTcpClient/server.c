@@ -10,18 +10,19 @@
 
 #include "my_library/get_socket_address.h"
 #include "my_library/handle_error.h"
+#include "my_library/presentation_layer.h"
 #include "protocol.h"
 
-struct ThreadArgData {
+struct ThreadArgs {
+    struct sockaddr_in saddr;
     int id;
     int sock;
-    struct sockaddr_in saddr;
 };
 
-// 英文字cの大小を反転させる．
+// 英文字cの大小を変更する．
 void convert(char *c);
 
-void *thread_func(void *arg);
+void *thread_main(void *arg);
 
 int main() {
     int ret;
@@ -54,7 +55,7 @@ int main() {
 
     for(int i = 0;; ++i) {
         // malloc(): 新しいスレッドに渡す引数を用意．
-        struct ThreadArgData *argdata = malloc(sizeof(struct ThreadArgData));
+        struct ThreadArgs *argdata = malloc(sizeof(struct ThreadArgs));
         if(argdata == NULL) DieWithSystemMessage(__LINE__, errno, "malloc()");
         argdata->id = i;
 
@@ -71,7 +72,7 @@ int main() {
 
         // (5) pthread_create(): スレッドを作成．
         pthread_t th;
-        ret = pthread_create(&th, NULL, thread_func, argdata);
+        ret = pthread_create(&th, NULL, thread_main, argdata);
         if(ret != 0) DieWithSystemMessage(__LINE__, ret, "pthread_create()");
 
         // (6) pthread_detach(): 親スレッドと子スレッドを切り離す．
@@ -90,46 +91,45 @@ void convert(char *c) {
     else if('a' <= *c && *c <= 'z') *c = *c - 'a' + 'A';
 }
 
-void *thread_func(void *arg) {
+void *thread_main(void *arg) {
     if(arg == NULL) return (void *)-1;
 
-    struct ThreadArgData *argdata = (struct ThreadArgData *)arg;
+    struct ThreadArgs *argdata = (struct ThreadArgs *)arg;
     int id = argdata->id;
     int sock = argdata->sock;
     char buf0[MY_INET_ADDRSTRLEN];
     char buf[BUF_SIZE];
-    ssize_t n;
+    size_t len;
     int ret;
 
     // (a-1) read(): 文字列を受信．
-    n = read(sock, buf, sizeof(buf) - 1);
-    if(n == -1) {
-        PrintSystemMessage(__LINE__, errno, "read()");
-        goto Err;
-    }
-    buf[n] = '\0';
+    ret = Read64bits(sock, &len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "read()");
+    ret = ReadByteString(sock, buf, len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "read()");
+    buf[len] = '\0';
 
     // [debug]
     GetSocketAddress((struct sockaddr *)&argdata->saddr, buf0, sizeof(buf0));
     printf("[%d] receive message from %s\n", id, buf0);
     printf("       message: \"%s\"\n", buf);
-    printf("       size:    %ld bytes\n", n);
+    printf("       size:    %ld bytes\n", len);
     fflush(stdout);
 
     // (a-2) 文字列を変形させる．
-    for(ssize_t i = 0; i < n; ++i) convert(&buf[i]);
+    for(size_t i = 0; i < len; ++i) convert(&buf[i]);
 
     // (a-3) write(): 変更した文字列を送信．
-    n = write(sock, buf, strlen(buf));
-    if(n < strlen(buf)) {
-        PrintSystemMessage(__LINE__, errno, "write()");
-        goto Err;
-    }
+    len = strlen(buf);
+    ret = Write64bits(sock, len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "write()");
+    ret = WriteByteString(sock, buf, len);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "write()");
 
     // [debug]
     printf("[%d] send converted message to %s\n", id, buf0);
     printf("       message: \"%s\"\n", buf);
-    printf("       size:    %ld bytes\n", n);
+    printf("       size:    %ld bytes\n", len);
     fflush(stdout);
 
     // (a-4) close(): TCPセッションを終了．
