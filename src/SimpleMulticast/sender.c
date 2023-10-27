@@ -9,9 +9,9 @@
 
 void Usage(char *argv[]) {
     fprintf(stderr,
-            "Usage:   %s <IP address of output interface>\n"
+            "Usage:   %s [IP address of output interface]\n"
             "Example: %s 192.168.11.3\n"
-            "Message Transfer by UDP\n",
+            "Message Transfer by Multicast (Sender).\n",
             argv[0], argv[0]);
 }
 

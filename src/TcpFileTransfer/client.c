@@ -15,7 +15,7 @@
 void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage: %s <filename>\n"
-            "Send file data by TCP.\n",
+            "File Transfer by TCP (Client).\n",
             argv[0]);
 }
 

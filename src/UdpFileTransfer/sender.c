@@ -16,7 +16,7 @@
 void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage: %s <filename>\n"
-            "Send file data by UDP.\n",
+            "File Transfer by UDP (Sender).\n",
             argv[0]);
 }
 

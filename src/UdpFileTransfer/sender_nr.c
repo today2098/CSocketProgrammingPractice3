@@ -18,7 +18,7 @@ void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage:   %s <filename> <hostname> <port number>\n"
             "Example: %s data.txt localhost 12345\n"
-            "Send file data by UDP.\n",
+            "File Transfer by UDP (Sender).\n",
             argv[0], argv[0]);
 }
 

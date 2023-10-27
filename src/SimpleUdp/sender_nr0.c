@@ -12,7 +12,7 @@ void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage:   %s <hostname> <port number>\n"
             "Example: %s localhost 12345\n"
-            "Message Transfer by UDP\n",
+            "Message Transfer by UDP (Sender).\n",
             argv[0], argv[0]);
 }
 

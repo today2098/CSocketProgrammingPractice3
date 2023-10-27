@@ -9,7 +9,7 @@
 void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage: %s <hostname> [port number|service]\n"
-            "Name Resolution\n",
+            "Name Resolution.\n",
             argv[0]);
 }
 
