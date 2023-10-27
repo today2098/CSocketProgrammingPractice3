@@ -64,5 +64,7 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+build/
+
 # Output files
 output/
