@@ -2,7 +2,10 @@
 
 ソケットプログラミングを勉強した際の成果物．
 
-|ID|Project|Summary|Model|Keyword|
+
+### Projects
+
+|Idx|Project|Summary|Model|Keyword|
 |:---|---|---|---|---|
 |0.|Name Resolution|与えられたホスト名から名前解決を行う．|-|名前解決|
 |1-1.|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|One to one|TCP|
@@ -13,6 +16,13 @@
 |3.|Simple Multicast|マルチキャストにより，特定の複数の端末に対し同一のメッセージを送信する．|One to many|UDP, マルチキャスト|
 |4.|Multi TCP Client|スレッドを用いた並列処理により，1対多の通信を行う．|One to many|TCP, マルチクライアント|
 |a.|My Library|一部プロジェクトで用いる自作ライブラリ群|-|-|
+
+
+### Documents
+
+|Idx|Title|Summary|
+|---|---|---|
+|1.|[ソケットに対する `read`, `write` の挙動](docs/others/Behavior_of_read_and_write_for_sockets.md)|-|\
 
 
 ## Environment
