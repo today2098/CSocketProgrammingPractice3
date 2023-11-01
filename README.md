@@ -8,7 +8,7 @@
 |Idx|Project|Summary|Model|Keyword|
 |:---|---|---|---|---|
 |0.|Name Resolution|与えられたホスト名から名前解決を行う．|-|名前解決|
-|1-1.|Simple TCP|TCP を用いて短いメッセージの送受信を行う．|One to one|TCP|
+|1-1.|[Simple TCP](docs/src/simple_tcp.md)|TCP を用いて短いメッセージの送受信を行う．|One to one|TCP|
 |1-2.|TCP File Transfer|TCP を用いてファイル転送を行う．|One to one|TCP, ファイル転送|
 |1-3.|File Server|ファイルサーバ．任意のファイルのダウンロードを実現する．|One to one|TCP, ファイル転送|
 |2-1.|Simple UDP|UDP を用いて短いメッセージの送受信を行う．|One to one|UDP|
