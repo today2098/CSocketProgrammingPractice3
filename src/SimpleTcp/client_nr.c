@@ -12,7 +12,7 @@ void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage:   %s <hostname> <port number>\n"
             "Example: %s localhost 12345\n"
-            "Message Transfer by TCP (Client).\n",
+            "Message Transfer by TCP (client).\n",
             argv[0], argv[0]);
 }
 
@@ -67,19 +67,29 @@ int main(int argc, char *argv[]) {
     // (5) freeaddrinfo(): リンクリストresult0に割り当てられたメモリを解放する．
     freeaddrinfo(result0);
 
+    if(sock == -1) {
+        fprintf(stderr, "connection failed\n");
+        return 1;
+    }
+
     // (6) read(): メッセージを受信．
     char buf[1024];
-    ssize_t n = read(sock, buf, sizeof(buf) - 1);
+    size_t offset;
+    ssize_t n;
+    for(offset = 0; offset < sizeof(buf) - 1; offset += n) {
+        n = read(sock, buf + offset, sizeof(buf) - 1 - offset);
+        if(n <= 0) break;
+    }
     if(n == -1) {
         perror("read()");
         return 1;
     }
-    buf[n] = '\0';
+    buf[offset] = '\0';
 
     // [debug] メッセージ内容を表示．
     printf("receive message\n");
-    printf("  message: %s\n", buf);
-    printf("  size:    %ld bytes\n", n);
+    printf("    message: %s\n", buf);
+    printf("    size:    %ld bytes\n", offset);
     fflush(stdout);
 
     // (7) close(): ソケットを閉じる．

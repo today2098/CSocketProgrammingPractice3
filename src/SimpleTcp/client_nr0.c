@@ -1,6 +1,5 @@
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,11 +11,11 @@ void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage:   %s <hostname> <port number>\n"
             "Example: %s localhost 12345\n"
-            "Message Transfer by TCP (Client).\n",
+            "Message Transfer by TCP (client).\n",
             argv[0], argv[0]);
 }
 
-// ホスト名から名前解決を行い，IPアドレスの文字列を返す．
+// 引数のホスト名から名前解決を行い，IPアドレスの文字列を返す．
 char *NameResolution(const char *hostname) {
     // (a-1) 名前解決の条件を指定．
     struct addrinfo hints;
@@ -90,17 +89,22 @@ int main(int argc, char *argv[]) {
 
     // (5) read(): メッセージを受信．
     char buf[1024];
-    ssize_t n = read(sock, buf, sizeof(buf) - 1);
+    size_t offset;
+    ssize_t n;
+    for(offset = 0; offset < sizeof(buf) - 1; offset += n) {
+        n = read(sock, buf + offset, sizeof(buf) - 1 - offset);
+        if(n <= 0) break;
+    }
     if(n == -1) {
         perror("read()");
         return 1;
     }
-    buf[n] = '\0';
+    buf[offset] = '\0';
 
     // [debug] メッセージ内容を表示．
     printf("receive message\n");
-    printf("  message: %s\n", buf);
-    printf("  size:    %ld bytes\n", n);
+    printf("    message: %s\n", buf);
+    printf("    size:    %ld bytes\n", offset);
     fflush(stdout);
 
     // (6) close(): ソケットを閉じる．

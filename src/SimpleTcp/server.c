@@ -1,5 +1,4 @@
 #include <arpa/inet.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -28,7 +27,7 @@ int main() {
         return 1;
     }
 
-    // (3) listen(): 接続要求の受け付けを開始．
+    // (3) listen(): 待ち行列を作成し，接続要求の受け付けを開始する．
     ret = listen(sock0, 5);
     if(ret == -1) {
         perror("listen()");
@@ -41,7 +40,7 @@ int main() {
     // (4) accept(): TCPクライアントからの接続要求を受け入れる．
     struct sockaddr_in client;
     memset(&client, 0, sizeof(client));
-    socklen_t len = sizeof(client);
+    socklen_t len = sizeof(client);  // in-out parameter.
     int sock = accept(sock0, (struct sockaddr *)&client, &len);
     if(sock == -1) {
         perror("accept()");
@@ -55,7 +54,7 @@ int main() {
     fflush(stdout);
 
     // (5) write(): メッセージを送信．
-    char message[1024] = "Hello! You've successfully connected.";
+    char message[1024] = "Congratulations! You've successfully connected.";
     ssize_t n = write(sock, message, strlen(message));
     if(n == -1) {
         perror("write()");
