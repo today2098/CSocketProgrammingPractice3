@@ -1,8 +1,7 @@
 #include "get_socket_address.h"
 
 #include <arpa/inet.h>
-#include <assert.h>
-#include <netinet/in.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -10,19 +9,30 @@
 const size_t MY_INET_ADDRSTRLEN = INET_ADDRSTRLEN + 6;
 const size_t MY_INET6_ADDRSTRLEN = INET6_ADDRSTRLEN + 8;
 
-void GetSocketAddress(const struct sockaddr *addr, char buf[], size_t len) {
+int GetSocketAddress(const struct sockaddr *saddr, char buf[], size_t len) {
     memset(buf, 0, len);
-    if(addr->sa_family == AF_INET) {
-        assert(len >= MY_INET_ADDRSTRLEN);
+    if(saddr->sa_family == AF_INET) {
+        if(len < MY_INET_ADDRSTRLEN) return -1;
         char buf0[INET_ADDRSTRLEN] = {};
-        inet_ntop(AF_INET, &(((struct sockaddr_in *)addr)->sin_addr), buf0, INET_ADDRSTRLEN);
-        uint16_t port = ntohs(((struct sockaddr_in *)addr)->sin_port);
+        const char *p = inet_ntop(AF_INET, &(((struct sockaddr_in *)saddr)->sin_addr), buf0, INET_ADDRSTRLEN);
+        if(p == NULL) {
+            snprintf(buf, len, "[invalid address]");
+            return -1;
+        }
+        uint16_t port = ntohs(((struct sockaddr_in *)saddr)->sin_port);
         snprintf(buf, len, "%s:%d", buf0, port);
-    } else if(addr->sa_family == AF_INET6) {
-        assert(len >= MY_INET6_ADDRSTRLEN);
+    } else if(saddr->sa_family == AF_INET6) {
+        if(len < MY_INET6_ADDRSTRLEN) return -1;
         char buf0[INET6_ADDRSTRLEN] = {};
-        inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)addr)->sin6_addr), buf0, INET6_ADDRSTRLEN);
-        uint16_t port = ntohs(((struct sockaddr_in6 *)addr)->sin6_port);
+        const char *p = inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)saddr)->sin6_addr), buf0, INET6_ADDRSTRLEN);
+        if(p == NULL) {
+            snprintf(buf, len, "[invalid address]");
+            return -1;
+        }
+        uint16_t port = ntohs(((struct sockaddr_in6 *)saddr)->sin6_port);
         snprintf(buf, len, "[%s]:%d", buf0, port);
+    } else {
+        snprintf(buf, len, "[unknown type]");
     }
+    return 0;
 }
