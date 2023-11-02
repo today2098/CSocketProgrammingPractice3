@@ -1,16 +1,16 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
 void Usage(char *argv[]) {
     fprintf(stderr,
-            "Usage: %s <hostname> [port number|service]\n"
+            "Usage:   %s <hostname> [port number|service]\n"
+            "Example: %s localhost http\n"
             "Name Resolution.\n",
-            argv[0]);
+            argv[0], argv[0]);
 }
 
 int main(int argc, char *argv[]) {
@@ -40,18 +40,22 @@ int main(int argc, char *argv[]) {
     for(result = result0; result; result = result->ai_next) {
         // アドレスファミリ．
         printf("[%d] address family: ", ++cnt);
-        if(result->ai_family == AF_INET) printf("INET (IPv4)");
-        else if(result->ai_family == AF_INET6) printf("INET6 (IPv6)");
-        else printf("other (%d)", result->ai_family);
-        printf("\n");
+        if(result->ai_family == AF_INET) printf("IPv4\n");
+        else if(result->ai_family == AF_INET6) printf("IPv6\n");
+        else printf("other (%d)\n", result->ai_family);
 
         // ソケットタイプ．
         printf("    socket type:    ");
-        if(result->ai_socktype == SOCK_STREAM) printf("stream socket (TCP)");
-        else if(result->ai_socktype == SOCK_DGRAM) printf("datagram socket (UDP)");
-        else if(result->ai_socktype == SOCK_RAW) printf("raw socket");
-        else printf("other (%d)", result->ai_socktype);
-        printf("\n");
+        if(result->ai_socktype == SOCK_STREAM) printf("stream\n");
+        else if(result->ai_socktype == SOCK_DGRAM) printf("datagram\n");
+        else if(result->ai_socktype == SOCK_RAW) printf("raw\n");
+        else printf("other (%d)\n", result->ai_socktype);
+
+        // プロトコル．
+        printf("    protocol:       ");
+        if(result->ai_protocol == IPPROTO_TCP) printf("TCP\n");
+        else if(result->ai_protocol == IPPROTO_UDP) printf("UDP\n");
+        else printf("other (%d)\n", result->ai_protocol);
 
         // ソケットアドレス．
         if(result->ai_family == AF_INET) {
@@ -60,13 +64,13 @@ int main(int argc, char *argv[]) {
             addr.s_addr = ((struct sockaddr_in *)(result->ai_addr))->sin_addr.s_addr;
             inet_ntop(AF_INET, &addr, buf, INET_ADDRSTRLEN);
             uint16_t port = ntohs(((struct sockaddr_in *)(result->ai_addr))->sin_port);
-            printf("    ip address:     %s:%d\n", buf, port);
+            printf("    socket address: %s:%d\n", buf, port);
         } else if(result->ai_family == AF_INET6) {
             char buf[INET6_ADDRSTRLEN] = {};
             unsigned char *const p = ((struct sockaddr_in6 *)(result->ai_addr))->sin6_addr.s6_addr;
             inet_ntop(AF_INET6, p, buf, INET6_ADDRSTRLEN);
             uint16_t port = ntohs(((struct sockaddr_in6 *)(result->ai_addr))->sin6_port);
-            printf("    ip address:     %s.%d\n", buf, port);
+            printf("    socket address: [%s]:%d\n", buf, port);
         }
     }
 
