@@ -7,16 +7,16 @@
 /**
  * @brief Convert the unsinged 64bits intenger from host byte order to network byte order.
  *
- * @param n the unsinged 64bits intenger by host byte order.
- * @return uint64_t the unsinged 64bits intenger by network byte order.
+ * @param n the unsinged 64bits intenger by host byte order
+ * @return The unsinged 64bits intenger by network byte order.
  */
 uint64_t htonll(uint64_t n);
 
 /**
  * @brief Convert the unsinged 64bits intenger from network byte order to host byte order.
  *
- * @param n the unsinged 64bits intenger by network byte order.
- * @return uint64_t the unsinged 64bits intenger by host byte order.
+ * @param n the unsinged 64bits intenger by network byte order
+ * @return The unsinged 64bits intenger by host byte order.
  */
 uint64_t ntohll(uint64_t n);
 
