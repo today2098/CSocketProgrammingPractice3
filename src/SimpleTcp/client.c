@@ -43,17 +43,22 @@ int main() {
 
     // (4) read(): メッセージを受信．
     char buf[1024];
-    ssize_t n = read(sock, buf, sizeof(buf) - 1);
+    size_t offset;
+    ssize_t n = 0;
+    for(offset = 0; offset < sizeof(buf) - 1; offset += n) {
+        n = read(sock, buf + offset, sizeof(buf) - 1 - offset);
+        if(n <= 0) break;
+    }
     if(n == -1) {
         perror("read()");
         return 1;
     }
-    buf[n] = '\0';
+    buf[offset] = '\0';
 
     // [debug] メッセージ内容を表示．
     printf("receive message\n");
     printf("    message: \"%s\"\n", buf);
-    printf("    size:    %ld bytes\n", n);
+    printf("    size:    %ld bytes\n", offset);
     fflush(stdout);
 
     // (5) close(): ソケットを閉じる．
