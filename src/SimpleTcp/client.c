@@ -8,7 +8,7 @@
 int main() {
     int ret;
 
-    // (1) socket(): TCPソケットを作成．
+    // (1) socket(): ストリームソケット (TCP) を作成．
     int sock = socket(PF_INET, SOCK_STREAM, 0);
     if(sock == -1) {
         perror("socket()");
@@ -43,22 +43,17 @@ int main() {
 
     // (4) read(): メッセージを受信．
     char buf[1024];
-    size_t offset;
-    ssize_t n;
-    for(offset = 0; offset < sizeof(buf) - 1; offset += n) {
-        n = read(sock, buf + offset, sizeof(buf) - 1 - offset);
-        if(n <= 0) break;
-    }
+    ssize_t n = read(sock, buf, sizeof(buf) - 1);
     if(n == -1) {
         perror("read()");
         return 1;
     }
-    buf[offset] = '\0';
+    buf[n] = '\0';
 
     // [debug] メッセージ内容を表示．
     printf("receive message\n");
-    printf("    message: %s\n", buf);
-    printf("    size:    %ld bytes\n", offset);
+    printf("    message: \"%s\"\n", buf);
+    printf("    size:    %ld bytes\n", n);
     fflush(stdout);
 
     // (5) close(): ソケットを閉じる．

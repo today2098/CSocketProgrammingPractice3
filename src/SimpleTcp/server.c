@@ -15,6 +15,15 @@ int main() {
         return 1;
     }
 
+    // setsockopt(): ソケット名の重複利用に関する制限を緩める．
+    // "bind(): Address already in use" のエラー対策．
+    int val = 1;
+    ret = setsockopt(sock0, SOL_SOCKET, SO_REUSEADDR, (const char *)&val, sizeof(val));
+    if(ret == -1) {
+        perror("setsockopt()");
+        return -1;
+    }
+
     // (2) bind(): Listen用ソケットに名前付け．
     struct sockaddr_in server;
     memset(&server, 0, sizeof(server));
@@ -54,8 +63,8 @@ int main() {
     fflush(stdout);
 
     // (5) write(): メッセージを送信．
-    char message[1024] = "Congratulations! You've successfully connected.";
-    ssize_t n = write(sock, message, strlen(message));
+    char msg[1024] = "Congratulations! You've successfully connected.";
+    ssize_t n = write(sock, msg, strlen(msg));
     if(n == -1) {
         perror("write()");
         return 1;

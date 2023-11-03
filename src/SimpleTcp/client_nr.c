@@ -1,6 +1,5 @@
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,8 +41,7 @@ int main(int argc, char *argv[]) {
 
     // コネクションが成功するまでリンクリストを走査する．
     int sock = -1;
-    struct addrinfo *result;
-    for(result = result0; result; result = result->ai_next) {
+    for(struct addrinfo *result = result0; result; result = result->ai_next) {
         // (3) socket(): ソケットを作成．
         sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
         if(sock == -1) continue;
@@ -62,6 +60,7 @@ int main(int argc, char *argv[]) {
         uint16_t port = ntohs(((struct sockaddr_in *)(result->ai_addr))->sin_port);
         printf("connect to %s:%d\n", buf0, port);
         fflush(stdout);
+        break;
     }
 
     // (5) freeaddrinfo(): リンクリストresult0に割り当てられたメモリを解放する．
@@ -74,22 +73,17 @@ int main(int argc, char *argv[]) {
 
     // (6) read(): メッセージを受信．
     char buf[1024];
-    size_t offset;
-    ssize_t n;
-    for(offset = 0; offset < sizeof(buf) - 1; offset += n) {
-        n = read(sock, buf + offset, sizeof(buf) - 1 - offset);
-        if(n <= 0) break;
-    }
+    ssize_t n = read(sock, buf, sizeof(buf) - 1);
     if(n == -1) {
         perror("read()");
         return 1;
     }
-    buf[offset] = '\0';
+    buf[n] = '\0';
 
     // [debug] メッセージ内容を表示．
     printf("receive message\n");
-    printf("    message: %s\n", buf);
-    printf("    size:    %ld bytes\n", offset);
+    printf("    message: \"%s\"\n", buf);
+    printf("    size:    %ld bytes\n", n);
     fflush(stdout);
 
     // (7) close(): ソケットを閉じる．
