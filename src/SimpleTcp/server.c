@@ -64,14 +64,10 @@ int main() {
 
     // (5) write(): メッセージを送信．
     char msg[1024] = "Congratulations! You've successfully connected.";
-    size_t offset;
-    ssize_t n;
-    for(offset = 0; offset < strlen(msg); offset += n) {
-        n = write(sock, msg, strlen(msg) - offset);
-        if(n <= 0) {
-            perror("write()");
-            return 1;
-        }
+    ssize_t n = write(sock, msg, strlen(msg));
+    if(n < strlen(msg)) {
+        perror("write()");
+        return 1;
     }
 
     printf("send message\n");
