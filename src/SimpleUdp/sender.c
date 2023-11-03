@@ -1,5 +1,4 @@
 #include <arpa/inet.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -17,12 +16,12 @@ int main() {
     }
 
     // (2) 接続先指定用のアドレス構造体を用意．
-    struct sockaddr_in dst_saddr;
-    memset(&dst_saddr, 0, sizeof(dst_saddr));
-    dst_saddr.sin_family = AF_INET;     // IPv4.
-    dst_saddr.sin_port = htons(12345);  // ポート番号．
+    struct sockaddr_in peer_saddr;
+    memset(&peer_saddr, 0, sizeof(peer_saddr));
+    peer_saddr.sin_family = AF_INET;     // IPv4.
+    peer_saddr.sin_port = htons(12345);  // ポート番号．
     // IPアドレスをテキスト形式からバイナリ形式に変換する．127.0.0.1はlocalhost.
-    ret = inet_pton(AF_INET, "127.0.0.1", &dst_saddr.sin_addr.s_addr);
+    ret = inet_pton(AF_INET, "127.0.0.1", &peer_saddr.sin_addr.s_addr);
     if(ret == -1) {
         perror("inet_pton()");
         return 1;
@@ -34,7 +33,7 @@ int main() {
 
     // (3) sendto(): メッセージを送信．
     char message[1024] = "Hello, world.";
-    ssize_t n = sendto(sock, message, strlen(message), 0, (struct sockaddr *)&dst_saddr, sizeof(dst_saddr));
+    ssize_t n = sendto(sock, message, strlen(message), 0, (struct sockaddr *)&peer_saddr, sizeof(peer_saddr));
     if(n == -1) {
         perror("sendto()");
         return 1;

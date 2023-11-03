@@ -1,6 +1,5 @@
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +11,7 @@ void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage:   %s <hostname> <port number>\n"
             "Example: %s localhost 12345\n"
-            "Message Transfer by UDP (Sender).\n",
+            "Message Transfer by UDP (sender).\n",
             argv[0], argv[0]);
 }
 
@@ -52,8 +51,8 @@ int main(int argc, char *argv[]) {
     int ret;
 
     // (1) 名前解決を行い，IPアドレスの文字列を取得する．
-    char *ipaddr_str = NameResolution(hostname);
-    printf("ip address: %s\n", ipaddr_str);
+    const char *ipaddr_str = NameResolution(hostname);
+    printf("perr ip address: %s\n", ipaddr_str);
     fflush(stdout);
 
     // (2) socket(): UDPソケットを作成．
@@ -64,11 +63,11 @@ int main(int argc, char *argv[]) {
     }
 
     // (3) 接続先指定用のアドレス構造体を用意．
-    struct sockaddr_in dst_saddr;
-    memset(&dst_saddr, 0, sizeof(dst_saddr));
-    dst_saddr.sin_family = AF_INET;
-    dst_saddr.sin_port = htons(atoi(port_str));
-    ret = inet_pton(AF_INET, ipaddr_str, &dst_saddr.sin_addr.s_addr);
+    struct sockaddr_in peer_saddr;
+    memset(&peer_saddr, 0, sizeof(peer_saddr));
+    peer_saddr.sin_family = AF_INET;
+    peer_saddr.sin_port = htons(atoi(port_str));
+    ret = inet_pton(AF_INET, ipaddr_str, &peer_saddr.sin_addr.s_addr);
     if(ret == -1) {
         perror("inet_pton()");
         return 1;
@@ -80,7 +79,7 @@ int main(int argc, char *argv[]) {
 
     // (4) sendto(): メッセージを送信．
     char message[1024] = "Hello, world.";
-    ssize_t n = sendto(sock, message, strlen(message), 0, (struct sockaddr *)&dst_saddr, sizeof(dst_saddr));
+    ssize_t n = sendto(sock, message, strlen(message), 0, (struct sockaddr *)&peer_saddr, sizeof(peer_saddr));
     if(n == -1) {
         perror("sendto()");
         return 1;

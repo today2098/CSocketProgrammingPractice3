@@ -1,5 +1,4 @@
 #include <arpa/inet.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -30,17 +29,21 @@ int main() {
 
     // (3) recv(): メッセージを受信．
     char buf[1024];
-    ssize_t n = read(sock, buf, sizeof(buf) - 1);
+    struct sockaddr_in peer_saddr;
+    socklen_t saddr_len = sizeof(peer_saddr);
+    ssize_t n = recvfrom(sock, buf, sizeof(buf) - 1, 0, (struct sockaddr *)&peer_saddr, &saddr_len);
     if(n == -1) {
-        perror("read()");
+        perror("recvfrom()");
         return 1;
     }
     buf[n] = '\0';
 
     // [debug] メッセージを表示．
-    printf("receive message\n");
-    printf("  message: %s\n", buf);
-    printf("  size: %ld bytes\n", n);
+    char buf0[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &peer_saddr.sin_addr, buf0, sizeof(buf0));
+    printf("receive message from %s:%d\n", buf0, ntohs(peer_saddr.sin_port));
+    printf("    message: %s\n", buf);
+    printf("    size:    %ld bytes\n", n);
     fflush(stdout);
 
     // (4) close(): ソケットを閉じる．

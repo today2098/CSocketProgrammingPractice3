@@ -1,6 +1,5 @@
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +11,7 @@ void Usage(char *argv[]) {
     fprintf(stderr,
             "Usage:   %s <hostname> <port number>\n"
             "Example: %s localhost 12345\n"
-            "Message Transfer by UDP (Sender).\n",
+            "Message Transfer by UDP (sender).\n",
             argv[0], argv[0]);
 }
 
@@ -44,7 +43,7 @@ int main(int argc, char *argv[]) {
     char buf0[INET_ADDRSTRLEN] = {};
     inet_ntop(AF_INET, &(((struct sockaddr_in *)(result0->ai_addr))->sin_addr.s_addr), buf0, sizeof(buf0));
     uint16_t port = ntohs(((struct sockaddr_in *)(result0->ai_addr))->sin_port);
-    printf("socket address is %s:%d\n", buf0, port);
+    printf("peer socket address: %s:%d\n", buf0, port);
     fflush(stdout);
 
     // (3) socket(): ソケットを作成．
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    printf("send message");
+    printf("send message\n");
     fflush(stdout);
 
     // (5) close(): ソケットを閉じる．
