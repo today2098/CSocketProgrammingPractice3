@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <sys/socket.h>
 
-extern const size_t MY_INET_ADDRSTRLEN;
-extern const size_t MY_INET6_ADDRSTRLEN;
+#define MY_INET_ADDRSTRLEN (INET_ADDRSTRLEN + 6)
+#define MY_INET6_ADDRSTRLEN (INET6_ADDRSTRLEN + 8)
 
 /**
  * @brief Get the socket address by string.

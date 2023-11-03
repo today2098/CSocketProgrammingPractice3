@@ -6,9 +6,6 @@
 #include <string.h>
 #include <sys/socket.h>
 
-const size_t MY_INET_ADDRSTRLEN = INET_ADDRSTRLEN + 6;
-const size_t MY_INET6_ADDRSTRLEN = INET6_ADDRSTRLEN + 8;
-
 int GetSocketAddress(const struct sockaddr *saddr, char buf[], size_t len) {
     memset(buf, 0, len);
     if(saddr->sa_family == AF_INET) {
