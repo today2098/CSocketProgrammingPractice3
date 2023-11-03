@@ -8,7 +8,7 @@
 int main() {
     int ret;
 
-    // (1) socket(): UDPソケットを作成．
+    // (1) socket(): データグラムソケット (UDP) を作成．
     int sock = socket(PF_INET, SOCK_DGRAM, 0);
     if(sock == -1) {
         perror("socket()");
@@ -27,7 +27,7 @@ int main() {
         return 1;
     }
 
-    // (3) recv(): メッセージを受信．
+    // (3) recvfrom(): メッセージを受信．
     char buf[1024];
     struct sockaddr_in peer_saddr;
     socklen_t saddr_len = sizeof(peer_saddr);
@@ -38,11 +38,11 @@ int main() {
     }
     buf[n] = '\0';
 
-    // [debug] メッセージを表示．
+    // [debug] 送信元のソケットアドレスとメッセージを表示．
     char buf0[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &peer_saddr.sin_addr, buf0, sizeof(buf0));
     printf("receive message from %s:%d\n", buf0, ntohs(peer_saddr.sin_port));
-    printf("    message: %s\n", buf);
+    printf("    message: \"%s\"\n", buf);
     printf("    size:    %ld bytes\n", n);
     fflush(stdout);
 

@@ -8,7 +8,7 @@
 int main() {
     int ret;
 
-    // (1) socket(): UDPソケットを作成．
+    // (1) socket(): データグラムソケット (UDP) を作成．
     int sock = socket(PF_INET, SOCK_DGRAM, 0);
     if(sock == -1) {
         perror("socket()");

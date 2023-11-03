@@ -51,11 +51,13 @@ int main(int argc, char *argv[]) {
     int ret;
 
     // (1) 名前解決を行い，IPアドレスの文字列を取得する．
-    const char *ipaddr_str = NameResolution(hostname);
+    char *ipaddr_str = NameResolution(hostname);
+
+    // [debug] 宛先のIPアドレスを表示．
     printf("perr ip address: %s\n", ipaddr_str);
     fflush(stdout);
 
-    // (2) socket(): UDPソケットを作成．
+    // (2) socket(): データグラムソケット (UDP) を作成．
     int sock = socket(PF_INET, SOCK_DGRAM, 0);
     if(sock == -1) {
         perror("socket()");
@@ -91,5 +93,7 @@ int main(int argc, char *argv[]) {
 
     // (5) close(): ソケットを閉じる．
     close(sock);
+
+    free(ipaddr_str);
     return 0;
 }
