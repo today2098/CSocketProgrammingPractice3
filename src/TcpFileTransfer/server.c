@@ -10,8 +10,8 @@
 #include <unistd.h>
 
 #include "my_library/directory.h"
-#include "my_library/get_socket_address.h"
 #include "my_library/handle_error.h"
+#include "my_library/handle_socket_address.h"
 #include "protocol.h"
 
 void Usage(char *argv[]) {

@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     int fd = open(filename, O_RDONLY);
     if(fd == -1) DieWithSystemMessage(__LINE__, errno, "open()");
 
-    // (2) socket(): TCPソケットを作成．
+    // (2) socket(): ストリームソケットを作成．
     int sock = socket(PF_INET, SOCK_STREAM, 0);
     if(sock == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 

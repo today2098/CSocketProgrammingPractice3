@@ -10,8 +10,8 @@
 #include <unistd.h>
 
 #include "my_library/directory.h"
-#include "my_library/get_socket_address.h"
 #include "my_library/handle_error.h"
+#include "my_library/handle_socket_address.h"
 #include "protocol.h"
 
 void Usage(char *argv[]) {
@@ -56,11 +56,10 @@ int main(int argc, char *argv[]) {
 
     // コネクションが成功するまでリンクリストを走査する．
     int sock = -1;
-    struct addrinfo *result;
-    for(result = result0; result; result = result->ai_next) {
+    for(struct addrinfo *result = result0; result; result = result->ai_next) {
         // [debug] サーバのソケットアドレスを表示．
         char buf0[MY_INET6_ADDRSTRLEN];
-        GetSocketAddress(result->ai_addr, buf0, MY_INET6_ADDRSTRLEN);
+        GetSocketAddress(result->ai_addr, buf0, sizeof(buf0));
         printf("try to establish a connection to %s\n", buf0);
         fflush(stdout);
 
@@ -82,6 +81,7 @@ int main(int argc, char *argv[]) {
 
         printf("connection successful\n");
         fflush(stdout);
+        break;
     }
     freeaddrinfo(result0);
     if(sock == -1) {
