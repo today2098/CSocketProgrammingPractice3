@@ -10,34 +10,33 @@
 #include <unistd.h>
 
 #include "my_library/directory.h"
-#include "my_library/get_socket_address.h"
 #include "my_library/handle_error.h"
+#include "my_library/handle_socket_address.h"
 #include "protocol.h"
 
 void Usage(char *argv[]) {
     fprintf(stderr,
-            "Usage:   %s <filename> <hostname> <port number>\n"
+            "Usage:   %s <filename> [hostname] [port number]\n"
             "Example: %s data.txt localhost 12345\n"
-            "File Transfer by UDP (Sender).\n",
+            "File Transfer by UDP (sender).\n",
             argv[0], argv[0]);
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 4) {
+    if(!(2 <= argc && argc <= 4)) {
         Usage(argv);
         return 1;
     }
 
     const char *filename = argv[1];
-    const char *hostname = argv[2];
-    const char *port_str = argv[3];
-    // const unsigned int delay = 1000;  // 1000 [microsec] = 1 [msec].
-    char buf[BUF_SIZE];
+    const char *hostname = (argc >= 3 ? argv[2] : "localhost");
+    const char *port_str = (argc == 4 ? argv[3] : P_PORT_STR);
+    char buf[P_BUF_SIZE];
     ssize_t m, n;
     int ret;
 
     // ディレクトリを移動．
-    ret = chdir(DATA_DIR_PATH);
+    ret = chdir(MY_DATA_DIR_PATH);
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) open(): ファイルを開く．
@@ -56,13 +55,13 @@ int main(int argc, char *argv[]) {
     }
 
     // [debug] 宛先のソケットアドレスを表示．
-    // 今回はリンクリストの先頭にあるアドレスを用いる．
+    // リンクリストの先頭にあるアドレス情報を用いる．
     char buf0[MY_INET6_ADDRSTRLEN];
     GetSocketAddress(result0->ai_addr, buf0, sizeof(buf0));
-    printf("socket address: %s\n", buf0);
+    printf("peer socket address: %s\n", buf0);
     fflush(stdout);
 
-    // (3) socket(): UDPソケットを作成．
+    // (3) socket(): ソケットを作成．
     int sock = socket(result0->ai_family, result0->ai_socktype, result0->ai_protocol);
     if(sock == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
@@ -73,16 +72,19 @@ int main(int argc, char *argv[]) {
     printf("send file name\n");
     fflush(stdout);
 
-    // (5) write(): ファイルデータを送信．
+    // (5) read(fd): ファイルを読み込む．
     int cnt = 0;
     ssize_t sum = 0;
+    const int delay = 1000;  // 1000 [microsec] = 1 [msec].
     while((m = read(fd, buf, sizeof(buf))) > 0) {
+        // (6) sendto(): ファイルデータを送信．
         n = sendto(sock, buf, m, 0, result0->ai_addr, result0->ai_addrlen);
         if(n < m) DieWithSystemMessage(__LINE__, errno, "sendto()");
         sum += n;
         printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
-        // usleep(delay);
+        // ネットワークがいっぱいになるのを防ぐ．
+        usleep(delay);
     }
     if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
     // サイズ0のデータグラムを送信する．
@@ -92,7 +94,7 @@ int main(int argc, char *argv[]) {
     printf("transmission complete\n");
     fflush(stdout);
 
-    // (6) close(): ソケットを閉じる．
+    // (7) close(): ソケットを閉じる．
     close(sock);
     return 0;
 }

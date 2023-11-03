@@ -4,8 +4,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-const uint16_t PORT = 12345;  // Port number of file server. 16bits.
+#include "my_library/common_port.h"
 
-const size_t BUF_SIZE = 4096;  // Buffer size. 2^12.
+// Port number of receiver. 16bits.
+const uint16_t P_PORT = MY_COMMON_PORT;
+const char *P_PORT_STR = MY_COMMON_PORT_STR;
+
+const size_t P_BUF_SIZE = 4096;  // Buffer size. 2^12.
 
 #endif
