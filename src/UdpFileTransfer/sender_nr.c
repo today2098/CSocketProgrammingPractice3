@@ -81,20 +81,23 @@ int main(int argc, char *argv[]) {
         n = sendto(sock, buf, m, 0, result0->ai_addr, result0->ai_addrlen);
         if(n < m) DieWithSystemMessage(__LINE__, errno, "sendto()");
         sum += n;
+
+        // [debug]
         printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, n, sum);
         fflush(stdout);
-        // ネットワークがいっぱいになるのを防ぐ．
-        usleep(delay);
+
+        usleep(delay);  // ネットワークがいっぱいになるのを防ぐ．
     }
     if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
-    // サイズ0のデータグラムを送信する．
+
+    // (7) sendto(): サイズ0のデータグラムを送信する．
     n = sendto(sock, buf, 0, 0, result0->ai_addr, result0->ai_addrlen);
     if(n == -1) DieWithSystemMessage(__LINE__, errno, "sendto()");
 
     printf("transmission complete\n");
     fflush(stdout);
 
-    // (7) close(): ソケットを閉じる．
+    // (8) close(): ソケットを閉じる．
     close(sock);
     return 0;
 }

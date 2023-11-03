@@ -15,7 +15,7 @@ int main() {
         return 1;
     }
 
-    // (2) 接続先指定用のアドレス構造体を用意．
+    // (2) 宛先指定用のアドレス構造体を用意．
     struct sockaddr_in peer_saddr;
     memset(&peer_saddr, 0, sizeof(peer_saddr));
     peer_saddr.sin_family = AF_INET;     // IPv4.

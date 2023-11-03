@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // (3) 接続先指定用のアドレス構造体を用意．
+    // (3) 宛先指定用のアドレス構造体を用意．
     struct sockaddr_in peer_saddr;
     memset(&peer_saddr, 0, sizeof(peer_saddr));
     peer_saddr.sin_family = AF_INET;
