@@ -1,8 +1,8 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <netinet/in.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -16,9 +16,10 @@
 
 void Usage(char *argv[]) {
     fprintf(stderr,
-            "Usage: %s <output filename>\n"
-            "File Transfer by TCP (Server).\n",
-            argv[0]);
+            "Usage:   %s <output filename>\n"
+            "Example: %s output_data.txt\n"
+            "File Transfer by TCP (server).\n",
+            argv[0], argv[0]);
 }
 
 int main(int argc, char *argv[]) {
@@ -28,24 +29,29 @@ int main(int argc, char *argv[]) {
     }
 
     const char *output_filename = argv[1];
-    char buf[BUF_SIZE];
+    char buf[P_BUF_SIZE];
     ssize_t m, n;
     int ret;
 
     // ディレクトリを移動．
-    mkdir(OUTPUT_DIR_PATH, 0755);
-    ret = chdir(OUTPUT_DIR_PATH);
+    mkdir(MY_OUTPUT_DIR_PATH, 0755);
+    ret = chdir(MY_OUTPUT_DIR_PATH);
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) socket(): Listen用ソケットを作成．
     int sock0 = socket(PF_INET, SOCK_STREAM, 0);
     if(sock0 == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
+    // setsockopt(): ソケット名の重複利用に関する制限を緩める．
+    int val = 1;
+    ret = setsockopt(sock0, SOL_SOCKET, SO_REUSEADDR, (const char *)&val, sizeof(val));
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "setsockopt()");
+
     // (2) bind(): Listen用ソケットに名前付け．
     struct sockaddr_in server;
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_port = htons(PORT);
+    server.sin_port = htons(P_PORT);
     server.sin_addr.s_addr = INADDR_ANY;
     ret = bind(sock0, (struct sockaddr *)&server, sizeof(server));
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "bind()");
@@ -79,16 +85,15 @@ int main(int argc, char *argv[]) {
     ssize_t sum = 0;
     while((m = read(sock, buf, sizeof(buf))) > 0) {
         sum += m;
-        printf("[%d] %ld bytes (total: %ld bytes)\n", ++cnt, m, sum);
+        printf("[%d] %5ld bytes (total: %ld bytes)\n", ++cnt, m, sum);
         fflush(stdout);
         n = write(fd, buf, m);
         if(n < m) DieWithSystemMessage(__LINE__, errno, "write()");
     }
     if(m == -1) DieWithSystemMessage(__LINE__, errno, "read()");
 
-    printf(
-        "connection is closed\n"
-        "transmission complete\n");
+    printf("connection is closed\n");
+    printf("transmission complete\n");
     fflush(stdout);
 
     // (7) close(): TCPセッションを終了．

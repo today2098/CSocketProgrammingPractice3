@@ -1,7 +1,6 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -14,9 +13,10 @@
 
 void Usage(char *argv[]) {
     fprintf(stderr,
-            "Usage: %s <filename>\n"
-            "File Transfer by TCP (Client).\n",
-            argv[0]);
+            "Usage:   %s <filename>\n"
+            "Example: %s data.txt\n"
+            "File Transfer by TCP (client).\n",
+            argv[0], argv[0]);
 }
 
 int main(int argc, char *argv[]) {
@@ -26,13 +26,13 @@ int main(int argc, char *argv[]) {
     }
 
     const char *filename = argv[1];
-    const char *ipaddr = "127.0.0.1";
-    char buf[BUF_SIZE];
+    const char *ipaddr_str = "127.0.0.1";
+    char buf[P_BUF_SIZE];
     ssize_t m, n;
     int ret;
 
     // ディレクトリを移動．
-    ret = chdir(DATA_DIR_PATH);
+    ret = chdir(MY_DATA_DIR_PATH);
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) open(): ファイルを開く．
@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in server;
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_port = htons(PORT);
-    ret = inet_pton(AF_INET, ipaddr, &server.sin_addr.s_addr);
+    server.sin_port = htons(P_PORT);
+    ret = inet_pton(AF_INET, ipaddr_str, &server.sin_addr.s_addr);
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "inet_pton()");
     if(ret == 0) {
         fprintf(stderr, "[error] line: %d, inet_pton(): wrong network address notation\n", __LINE__);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     ret = connect(sock, (struct sockaddr *)&server, sizeof(server));
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "connect()");
 
-    printf("connect to %s:%d\n", ipaddr, PORT);
+    printf("connect to %s:%d\n", ipaddr_str, P_PORT);
     fflush(stdout);
 
     // (5) write(): ファイルデータを送信．

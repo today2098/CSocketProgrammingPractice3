@@ -16,27 +16,27 @@
 
 void Usage(char *argv[]) {
     fprintf(stderr,
-            "Usage:   %s <filename> <hostname> <port number>\n"
+            "Usage:   %s <filename> [hostname] [port number]\n"
             "Example: %s data.txt localhost 12345\n"
-            "File Transfer by TCP (Client).\n",
+            "File Transfer by TCP (client).\n",
             argv[0], argv[0]);
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 4) {
+    if(!(2 <= argc && argc <= 4)) {
         Usage(argv);
         return 1;
     }
 
     const char *filename = argv[1];
-    const char *hostname = argv[2];
-    const char *port_str = argv[3];
-    char buf[BUF_SIZE];
+    const char *hostname = (argc >= 3 ? argv[2] : "localhost");
+    const char *port_str = (argc == 4 ? argv[3] : P_PORT_STR);
+    char buf[P_BUF_SIZE];
     ssize_t m, n;
     int ret;
 
     // ディレクトリを移動．
-    ret = chdir(DATA_DIR_PATH);
+    ret = chdir(MY_DATA_DIR_PATH);
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "chdir()");
 
     // (1) open(): ファイルを開く．
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     }
     freeaddrinfo(result0);
     if(sock == -1) {
-        fprintf(stderr, "[error] connection failed\n");
+        fprintf(stderr, "[error] line: %d, connection failed\n", __LINE__);
         return 1;
     }
 
