@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -25,56 +26,43 @@ int main(int argc, char *argv[]) {
     }
 
     const char *mcast_ipaddr_str = (argc >= 2 ? argv[1] : P_MULTICAST_IPADDR);
-    const char *port_str = (argc == 3 ? argv[2] : P_PORT_STR);
-    struct addrinfo hints, *result0;
-    int status;
-    char buf0[MY_INET6_ADDRSTRLEN];
+    const uint16_t port = (argc == 3 ? atoi(argv[2]) : P_PORT);
     int ret;
 
-    // (1) 名前解決を行う．
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_flags = AI_PASSIVE;
-    status = getaddrinfo(NULL, port_str, &hints, &result0);
-    if(status != 0) {
-        fprintf(stderr, "[error] line: %d, getaddrinfo(): %s\n", __LINE__, gai_strerror(status));
-        return 1;
-    }
-
-    // (2) socket(): ソケットを作成．
-    int sock = socket(result0->ai_family, result0->ai_socktype, result0->ai_protocol);
+    // (1) socket(): データグラムソケットを作成．
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock == -1) DieWithSystemMessage(__LINE__, errno, "socket()");
 
-    // (3) bind(): ソケットに名前付け．
-    ret = bind(sock, result0->ai_addr, result0->ai_addrlen);
+    // (2) bind(): ソケットに名前付け．
+    struct sockaddr_in saddr;
+    memset(&saddr, 0, sizeof(saddr));
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(port);
+    saddr.sin_addr.s_addr = INADDR_ANY;
+    ret = bind(sock, (struct sockaddr *)&saddr, sizeof(saddr));
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "bind()");
-    freeaddrinfo(result0);
 
-    // (4) マルチキャストアドレスを設定．
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_flags = AI_NUMERICHOST;
-    status = getaddrinfo(mcast_ipaddr_str, NULL, &hints, &result0);
-    if(status != 0) {
-        fprintf(stderr, "[error] line: %d, getaddrinfo(): %s\n", __LINE__, gai_strerror(status));
+    // (3) マルチキャストアドレスを設定．
+    struct ip_mreq mreq;
+    memset(&mreq, 0, sizeof(mreq));
+    mreq.imr_interface.s_addr = INADDR_ANY;  // 任意のインターフェイスを利用．
+    ret = inet_pton(AF_INET, mcast_ipaddr_str, &mreq.imr_multiaddr.s_addr);
+    if(ret == -1) DieWithSystemMessage(__LINE__, errno, "inet_ntop()");
+    if(ret == 0) {
+        fprintf(stderr, "[error] line: %d, inet_ntop(): wrong network address notation\n", __LINE__);
         return 1;
     }
 
-    // (5) マルチキャストグループにジョインする．
-    struct group_req greq;
-    memset(&greq, 0, sizeof(greq));
-    greq.gr_interface = 0;  // 任意のインターフェイスを利用．
-    memcpy(&greq.gr_group, result0->ai_addr, result0->ai_addrlen);
-    freeaddrinfo(result0);
-    ret = setsockopt(sock, IPPROTO_IP, MCAST_JOIN_GROUP, &greq, sizeof(greq));
+    // (4) setsockopt(): マルチキャストグループにジョインする．
+    // IPv4の場合，旧APIであるIP_ADD_MEMBERSHIPオプションとip_mreq構造体を利用．
+    // IPv6の場合は，別のIPV6_ADD_MEMBERSHIPとipv6_mreq構造体を利用しており，この実装はプロトコル依存である．
+    ret = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "setsockopt()");
 
-    printf("join multicast group %s:%s\n", mcast_ipaddr_str, port_str);
+    printf("join multicast group %s:%d\n", mcast_ipaddr_str, port);
     fflush(stdout);
 
-    // (6) recv(): メッセージを受信．
+    // (5) recvfrom(): メッセージを受信．
     char buf[1024];
     struct sockaddr_in peer_saddr;
     socklen_t saddr_len = sizeof(peer_saddr);
@@ -83,13 +71,13 @@ int main(int argc, char *argv[]) {
     buf[n] = '\0';
 
     // [debug] 送信元のソケットアドレスとメッセージを表示．
-    // char buf0[MY_INET_ADDRSTRLEN];
+    char buf0[MY_INET_ADDRSTRLEN];
     GetSocketAddress((struct sockaddr *)&peer_saddr, buf0, sizeof(buf0));
     printf("receive message from %s\n", buf0);
     printf("    message: %s\n", buf);
     printf("    size:    %ld bytes\n", n);
 
-    // (7) close(): ソケットを閉じる．
+    // (6) close(): ソケットを閉じる．
     close(sock);
     return 0;
 }
