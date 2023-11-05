@@ -59,23 +59,26 @@ int main(int argc, char *argv[]) {
     ret = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     if(ret == -1) DieWithSystemMessage(__LINE__, errno, "setsockopt()");
 
-    printf("join multicast group %s:%d\n", mcast_ipaddr_str, port);
+    printf("join multicast group %s:%u\n", mcast_ipaddr_str, port);
     fflush(stdout);
 
     // (5) recvfrom(): メッセージを受信．
-    char buf[1024];
-    struct sockaddr_in peer_saddr;
-    socklen_t saddr_len = sizeof(peer_saddr);
-    ssize_t n = recvfrom(sock, buf, sizeof(buf) - 1, 0, (struct sockaddr *)&peer_saddr, &saddr_len);
-    if(n == -1) DieWithSystemMessage(__LINE__, errno, "recvfrom()");
-    buf[n] = '\0';
-
-    // [debug] 送信元のソケットアドレスとメッセージを表示．
+    char buf[P_BUF_SIZE];
+    struct sockaddr_in src_saddr;
+    socklen_t saddr_len = sizeof(src_saddr);
     char buf0[MY_INET_ADDRSTRLEN];
-    GetSocketAddress((struct sockaddr *)&peer_saddr, buf0, sizeof(buf0));
-    printf("receive message from %s\n", buf0);
-    printf("    message: %s\n", buf);
-    printf("    size:    %ld bytes\n", n);
+    for(int i = 0;; ++i) {
+        ssize_t n = recvfrom(sock, buf, sizeof(buf) - 1, 0, (struct sockaddr *)&src_saddr, &saddr_len);
+        if(n < 0) DieWithSystemMessage(__LINE__, errno, "recvfrom()");
+        buf[n] = '\0';
+
+        // [debug] メッセージを表示．
+        GetSocketAddress((struct sockaddr *)&src_saddr, buf0, sizeof(buf0));
+        printf("[%d] receive message from %s\n", i, buf0);
+        printf("        message: \"%s\"\n", buf);
+        printf("        size:    %ld bytes\n", n);
+        fflush(stdout);
+    }
 
     // (6) close(): ソケットを閉じる．
     close(sock);
